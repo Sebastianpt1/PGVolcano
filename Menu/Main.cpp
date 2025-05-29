@@ -1,6 +1,8 @@
-﻿#include <glad/glad.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <cmath>
+#include <algorithm> // necesario para std::min
 
 enum MenuOption { START = 0, CREDITS = 1, EXIT = 2 };
 MenuOption selectedOption = START;
@@ -39,16 +41,43 @@ void processInput(GLFWwindow* window)
 	}
 }
 
-void drawRectangle(float x, float y, float w, float h, MenuOption option)
+void drawButton(float x, float y, float w, float h, MenuOption option)
 {
-	if (option == START)
-		glColor3f(1.0f, 1.0f, 0.0f);  // Amarillo
-	else if (option == CREDITS)
-		glColor3f(0.0f, 0.8f, 0.0f);  // Verde
-	else if (option == EXIT)
-		glColor3f(0.9f, 0.0f, 0.0f);  // Rojo
+	float time = glfwGetTime();
+	float pulse = 0.7f + 0.3f * std::sin(time * 6.0f); // brillo dinámico
 
+	// Color base por botón
+	float r = 0.5f, g = 0.5f, b = 0.5f;
+	if (option == START) {
+		r = 1.0f; g = 1.0f; b = 0.0f; // amarillo
+	}
+	else if (option == CREDITS) {
+		r = 0.0f; g = 0.8f; b = 0.0f; // verde
+	}
+	else if (option == EXIT) {
+		r = 0.9f; g = 0.0f; b = 0.0f; // rojo
+	}
+
+	// Brillo si está seleccionado
+	if (selectedOption == option) {
+		r = std::min(r * pulse + 0.2f, 1.0f);
+		g = std::min(g * pulse + 0.2f, 1.0f);
+		b = std::min(b * pulse + 0.2f, 1.0f);
+	}
+
+	// Botón (relleno)
+	glColor3f(r, g, b);
 	glBegin(GL_QUADS);
+	glVertex2f(x, y);
+	glVertex2f(x + w, y);
+	glVertex2f(x + w, y - h);
+	glVertex2f(x, y - h);
+	glEnd();
+
+	// Borde del botón
+	glLineWidth(3.0f);
+	glColor3f(1.0f, 1.0f, 1.0f); // blanco
+	glBegin(GL_LINE_LOOP);
 	glVertex2f(x, y);
 	glVertex2f(x + w, y);
 	glVertex2f(x + w, y - h);
@@ -56,7 +85,7 @@ void drawRectangle(float x, float y, float w, float h, MenuOption option)
 	glEnd();
 }
 
-// Letras
+// Letras simuladas
 void drawI(float x, float y, float size)
 {
 	glBegin(GL_QUADS);
@@ -75,10 +104,12 @@ void drawC(float x, float y, float size)
 	glVertex2f(x + thick, y);
 	glVertex2f(x + thick, y - size);
 	glVertex2f(x, y - size);
+
 	glVertex2f(x, y);
 	glVertex2f(x + size * 0.6f, y);
 	glVertex2f(x + size * 0.6f, y - thick);
 	glVertex2f(x, y - thick);
+
 	glVertex2f(x, y - size);
 	glVertex2f(x + size * 0.6f, y - size);
 	glVertex2f(x + size * 0.6f, y - size + thick);
@@ -122,11 +153,11 @@ void renderMenu()
 	glClear(GL_COLOR_BUFFER_BIT);
 	glLoadIdentity();
 
-	drawRectangle(-0.5f, 0.4f, 1.0f, 0.2f, START);
-	drawRectangle(-0.5f, 0.1f, 1.0f, 0.2f, CREDITS);
-	drawRectangle(-0.5f, -0.2f, 1.0f, 0.2f, EXIT);
+	drawButton(-0.5f, 0.4f, 1.0f, 0.2f, START);
+	drawButton(-0.5f, 0.1f, 1.0f, 0.2f, CREDITS);
+	drawButton(-0.5f, -0.2f, 1.0f, 0.2f, EXIT);
 
-	glColor3f(1.0f, 1.0f, 1.0f); // Letras blancas
+	glColor3f(1.0f, 1.0f, 1.0f); // letras blancas
 	drawI(-0.05f, 0.3f, 0.15f);
 	drawC(-0.05f, 0.0f, 0.15f);
 	drawS(-0.05f, -0.3f, 0.15f);
@@ -163,7 +194,7 @@ int main()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	glClearColor(0.0f, 0.2f, 0.4f, 1.0f);  // Azul profundo
+	glClearColor(0.0f, 0.2f, 0.4f, 1.0f); // fondo azul
 
 	while (!glfwWindowShouldClose(window))
 	{
