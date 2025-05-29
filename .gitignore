@@ -1,0 +1,14 @@
+# Ignorar archivos de configuración de VS
+.vs/
+*.suo
+*.db
+*.db-shm
+*.db-wal
+*.VC.opendb
+*.VC.db
+*.sqlite
+*.vscode/
+*.opensdf
+*.sdf
+*.log
+ 
