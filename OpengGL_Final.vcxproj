@@ -129,7 +129,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Fam Potoy\source\repos\OpengGL_Final\Librerias\include\assimp\include;C:\Users\Fam Potoy\Documents\OpenGl\assimp\include\assimp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Fam Potoy\source\repos\OpengGL_Final\Librerias\include\assimp\include;C:\Users\Fam Potoy\Documents\OpenGl\assimp\include\assimp;C:\Users\JuanMontiel\source\repos\PGVolcano\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
