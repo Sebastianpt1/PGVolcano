@@ -69,11 +69,13 @@ int main()
     glm::vec3 lightPos = glm::vec3(0.5f, 1480.0f, -20.5f);
 
     glEnable(GL_DEPTH_TEST);
+    glm::vec3 ambientColor = glm::vec3(0.05f, 0.05f, 0.07f); // tenue azul noche
+
 
     // Bucle principal
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+        glClearColor(0.05f, 0.07f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         camera.Inputs(window);
@@ -88,6 +90,8 @@ int main()
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.r, lightColor.g, lightColor.b, lightColor.a);
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "ambientColor"),ambientColor.x, ambientColor.y, ambientColor.z);
+
 
         camera.Matrix(shaderProgram, "camMatrix");
 
