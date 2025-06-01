@@ -19,6 +19,9 @@
     <Filter Include="Archivos de recursos\Modelos">
       <UniqueIdentifier>{7660379e-f2ff-4605-ab8d-1b2b99441108}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de recursos\Shaders">
+      <UniqueIdentifier>{4edf8c69-3f5e-4a5c-aea7-5d7a3c738944}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -112,5 +115,19 @@
     <Image Include="komi.png">
       <Filter>Archivos de recursos\Texturas</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="light.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="default.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="light.vert">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="default.vert">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
