@@ -12,79 +12,101 @@ namespace fs = std::filesystem;
 #include "Camera.h"
 #include "Model.h"
 
-const unsigned int width = 800;
-const unsigned int height = 800;
-
 int main()
 {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // Inicializar GLFW
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(width, height, "Modelo 3D Cargado", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "No se pudo crear la ventana GLFW" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
-	std::cout << "Ruta actual: " << fs::current_path() << std::endl;
+    // Obtener monitor principal y modo de video
+    unsigned int width = 1280;
+    unsigned int height = 720;
 
-	gladLoadGL();
-	glViewport(0, 0, width, height);
+    // Crear ventana en modo ventana normal
+    GLFWwindow* window = glfwCreateWindow(width, height, "Modelos 3D Cargados", NULL, NULL);
 
-	// Shaders
-	Shader shaderProgram("default.vert", "default.frag");
+    if (window == NULL)
+    {
+        std::cout << "No se pudo crear la ventana GLFW" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+    std::cout << "Ruta actual: " << fs::current_path() << std::endl;
 
-	// Cámara
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 3.0f));
+    gladLoadGL();
+    glViewport(0, 0, width, height);
 
-	// Ruta al modelo
-	std::string parentDir = fs::current_path().parent_path().string();
-	std::string modelPath = parentDir + "/Modelos/minecraft-iron-golem/source/iron_golem.fbx";
+    // Shaders
+    Shader shaderProgram("default.vert", "default.frag");
 
-	// Cargar modelo
-	Model model(modelPath.c_str());
-	std::cout << "Modelo cargado desde: " << modelPath << std::endl;
+    // Cámara
+    Camera camera(width, height, glm::vec3(0.0f, 0.0f, 8.0f));
 
-	// Iluminación
-	glm::vec4 lightColor = glm::vec4(1.0f);
-	glm::vec3 lightPos = glm::vec3(0.5f, 1.0f, 0.5f);
+    // Ruta de modelos
+    std::string parentDir = fs::current_path().parent_path().string();
+    std::string modelPath1 = parentDir + "/PGVolcano/Modelos/fumo/scene.gltf";
+    std::string modelPath2 = parentDir + "/PGVolcano/Modelos/fuji/scene.gltf";
 
-	glEnable(GL_DEPTH_TEST);
+    // Cargar modelos
+    Model model1(modelPath1.c_str());
+    Model model2(modelPath2.c_str());
 
-	while (!glfwWindowShouldClose(window))
-	{
-		glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    std::cout << "Modelo 1 cargado desde: " << modelPath1 << std::endl;
+    std::cout << "Modelo 2 cargado desde: " << modelPath2 << std::endl;
 
-		camera.Inputs(window);
-		camera.updateMatrix(45.0f, 0.1f, 1000.0f);
+    // Iluminación
+    glm::vec4 lightColor = glm::vec4(1.0f);
+    glm::vec3 lightPos = glm::vec3(0.5f, 1480.0f, -20.5f);
 
-		shaderProgram.Activate();
-		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.r, lightColor.g, lightColor.b, lightColor.a);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-		glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    glEnable(GL_DEPTH_TEST);
 
-		camera.Matrix(shaderProgram, "camMatrix");
+    // Bucle principal
+    while (!glfwWindowShouldClose(window))
+    {
+        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, glm::vec3(0.0f, 0.0f, 0.0f));
-		modelMatrix = glm::rotate(modelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        camera.Inputs(window);
 
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+        // Cerrar con Esc
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
 
-		model.Draw(shaderProgram);
+        camera.updateMatrix(45.0f, 0.1f, 10000.0f);
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+        shaderProgram.Activate();
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.r, lightColor.g, lightColor.b, lightColor.a);
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 
-	}
+        camera.Matrix(shaderProgram, "camMatrix");
 
-	shaderProgram.Delete();
-	glfwDestroyWindow(window);
-	glfwTerminate();
-	return 0;
+        // Modelo 1 - al centro
+        glm::mat4 modelMatrix1 = glm::mat4(1.0f);
+        modelMatrix1 = glm::translate(modelMatrix1, glm::vec3(0.0f, 1220.0f, 0.0f));
+        modelMatrix1 = glm::rotate(modelMatrix1, glm::radians(-180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix1));
+        model1.Draw(shaderProgram);
+
+        // Modelo 2 - desplazado a la derecha y escalado
+        glm::mat4 modelMatrix2 = glm::mat4(1.0f);
+        modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(14.0f, 0.0f, 0.0f));
+        modelMatrix2 = glm::rotate(modelMatrix2, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        modelMatrix2 = glm::scale(modelMatrix2, glm::vec3(3.5f)); // escala opcional
+
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix2));
+        model2.Draw(shaderProgram);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    shaderProgram.Delete();
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 0;
 }
