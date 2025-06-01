@@ -69,7 +69,7 @@ int main()
     glm::vec3 lightPos = glm::vec3(0.5f, 1480.0f, -20.5f);
 
     glEnable(GL_DEPTH_TEST);
-    glm::vec3 ambientColor = glm::vec3(0.05f, 0.05f, 0.07f); // tenue azul noche
+    glm::vec3 ambientColor = glm::vec3(0.12f, 0.15f, 0.25f); // Azul claro, suave
 
 
     // Bucle principal
