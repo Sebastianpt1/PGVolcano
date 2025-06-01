@@ -20,13 +20,12 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Obtener monitor principal y modo de video
+    // Tamaño de la ventana
     unsigned int width = 1280;
-    unsigned int height = 720;
+    unsigned int height = 800;
 
-    // Crear ventana en modo ventana normal
+    // Crear ventana
     GLFWwindow* window = glfwCreateWindow(width, height, "Modelos 3D Cargados", NULL, NULL);
-
     if (window == NULL)
     {
         std::cout << "No se pudo crear la ventana GLFW" << std::endl;
@@ -34,6 +33,14 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+
+    // Centrar ventana
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+    int xpos = (mode->width - width) / 2;
+    int ypos = (mode->height - height) / 2;
+    glfwSetWindowPos(window, xpos, ypos);
+
     std::cout << "Ruta actual: " << fs::current_path() << std::endl;
 
     gladLoadGL();
@@ -43,7 +50,7 @@ int main()
     Shader shaderProgram("default.vert", "default.frag");
 
     // Cámara
-    Camera camera(width, height, glm::vec3(0.0f, 0.0f, 8.0f));
+    Camera camera(width, height, glm::vec3(0.0f, 520.0f, 8.0f));
 
     // Ruta de modelos
     std::string parentDir = fs::current_path().parent_path().string();
@@ -84,20 +91,18 @@ int main()
 
         camera.Matrix(shaderProgram, "camMatrix");
 
-        // Modelo 1 - al centro
+        // Modelo 1 - fumo
         glm::mat4 modelMatrix1 = glm::mat4(1.0f);
-        modelMatrix1 = glm::translate(modelMatrix1, glm::vec3(0.0f, 1220.0f, 0.0f));
+        modelMatrix1 = glm::translate(modelMatrix1, glm::vec3(60.0f, 520.0f, 0.0f));
         modelMatrix1 = glm::rotate(modelMatrix1, glm::radians(-180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix1));
         model1.Draw(shaderProgram);
 
-        // Modelo 2 - desplazado a la derecha y escalado
+        // Modelo 2 - fuji
         glm::mat4 modelMatrix2 = glm::mat4(1.0f);
-        modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(14.0f, 0.0f, 0.0f));
+        modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(0.0f, 0.0f, 0.0f));
         modelMatrix2 = glm::rotate(modelMatrix2, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        modelMatrix2 = glm::scale(modelMatrix2, glm::vec3(3.5f)); // escala opcional
-
+        modelMatrix2 = glm::scale(modelMatrix2, glm::vec3(3.5f));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix2));
         model2.Draw(shaderProgram);
 
