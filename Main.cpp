@@ -54,8 +54,8 @@ int main()
 
     // Ruta de modelos
     std::string parentDir = fs::current_path().parent_path().string();
-    std::string modelPath1 = parentDir + "/PGVolcano/Modelos/fumo/scene.gltf";
-    std::string modelPath2 = parentDir + "/PGVolcano/Modelos/fuji/scene.gltf";
+    std::string modelPath1 = parentDir + "/PGVolcano/Models/fumo/scene.gltf";
+    std::string modelPath2 = parentDir + "/PGVolcano/Models/fuji/scene.gltf";
 
     // Cargar modelos
     Model model1(modelPath1.c_str());

@@ -16,9 +16,6 @@
     <Filter Include="Archivos de recursos\Texturas">
       <UniqueIdentifier>{29e95d64-45fe-46e6-9420-93c5abe778ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Archivos de recursos\Modelos">
-      <UniqueIdentifier>{7660379e-f2ff-4605-ab8d-1b2b99441108}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Archivos de recursos\Shaders">
       <UniqueIdentifier>{4edf8c69-3f5e-4a5c-aea7-5d7a3c738944}</UniqueIdentifier>
     </Filter>
