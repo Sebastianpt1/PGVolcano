@@ -2,8 +2,11 @@
 #define MODEL_H
 
 #include <glad/glad.h>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <assimp/scene.h>
 #include <string>
@@ -12,6 +15,8 @@
 
 #include "mesh.h"
 #include "shaderClass.h"
+
+#include "Collision.h"
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
@@ -22,6 +27,8 @@ public:
     std::vector<Mesh> meshes;
     std::string directory;
     bool gammaCorrection;
+    //logica de collision
+    std::vector<Triangle> collisionTriangles;
 
     Model(std::string const& path, bool gamma = false);
     void Draw(Shader& shader);

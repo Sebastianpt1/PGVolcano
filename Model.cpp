@@ -80,6 +80,24 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 
         vertices.push_back(vertex);
     }
+       //calcular cantidad de triangulos(raycasting)
+        for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+            aiFace face = mesh->mFaces[i];
+            if (face.mNumIndices == 3) {
+                Triangle tri;
+                tri.v0 = vertices[face.mIndices[0]].Position;
+                tri.v1 = vertices[face.mIndices[1]].Position;
+                tri.v2 = vertices[face.mIndices[2]].Position;
+                this->collisionTriangles.push_back(tri);
+                std::cout << "Triángulo agregado: "
+                    << glm::to_string(tri.v0) << ", "
+                    << glm::to_string(tri.v1) << ", "
+                    << glm::to_string(tri.v2) << std::endl;
+
+            
+        }
+
+    }
 
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
         aiFace face = mesh->mFaces[i];
