@@ -156,20 +156,9 @@
     <ClInclude Include="VBO.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="chin.png" />
-    <Image Include="komi.png" />
-    <Image Include="komi2.png" />
-    <Image Include="komii.png" />
-    <Image Include="Nether.png" />
-    <Image Include="nether2.png" />
-    <Image Include="pelota.png" />
-    <Image Include="planks.png" />
-    <Image Include="planksSpec.png" />
-    <Image Include="roble.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="default.frag" />
     <None Include="default.vert" />
+    <None Include="default2.frag" />
     <None Include="light.frag" />
     <None Include="light.vert" />
   </ItemGroup>

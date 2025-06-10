@@ -16,9 +16,6 @@
     <Filter Include="Archivos de recursos\Texturas">
       <UniqueIdentifier>{29e95d64-45fe-46e6-9420-93c5abe778ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Archivos de recursos\Modelos">
-      <UniqueIdentifier>{7660379e-f2ff-4605-ab8d-1b2b99441108}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Archivos de recursos\Shaders">
       <UniqueIdentifier>{4edf8c69-3f5e-4a5c-aea7-5d7a3c738944}</UniqueIdentifier>
     </Filter>
@@ -91,38 +88,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="pelota.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="chin.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="planksSpec.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="planks.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="roble.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="nether2.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="Nether.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="komi2.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="komii.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-    <Image Include="komi.png">
-      <Filter>Archivos de recursos\Texturas</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="light.frag">
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
@@ -133,6 +98,9 @@
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
     <None Include="default.vert">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="default2.frag">
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
   </ItemGroup>

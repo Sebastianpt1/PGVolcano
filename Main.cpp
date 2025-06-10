@@ -119,12 +119,13 @@ int main()
     // Shaders
     Shader shaderProgram("default.vert", "default.frag");
 
-  
+
+ 
 
     // Ruta de modelos
     std::string parentDir = fs::current_path().parent_path().string();
-    std::string modelPath1 = parentDir + "/PGVolcano/Modelos/fumo/scene.gltf";
-    std::string modelPath2 = parentDir + "/PGVolcano/Modelos/fuji/scene.gltf";
+    std::string modelPath1 = parentDir + "/PGVolcano/Models/fumo/scene.gltf";
+    std::string modelPath2 = parentDir + "/PGVolcano/Models/fuji/scene.gltf";
 
     // Cargar modelos
     Model model1(modelPath1.c_str());
@@ -153,9 +154,9 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
     glm::vec3 ambientColor = glm::vec3(0.12f, 0.15f, 0.25f); // Azul claro, suave
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 
     // Bucle principal
     while (!glfwWindowShouldClose(window))
@@ -231,7 +232,10 @@ int main()
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.r, lightColor.g, lightColor.b, lightColor.a);
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "camPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+
         glUniform3f(glGetUniformLocation(shaderProgram.ID, "ambientColor"), ambientColor.x, ambientColor.y, ambientColor.z);
+
+        glUniform3f(glGetUniformLocation(shaderProgram.ID, "ambientColor"),ambientColor.x, ambientColor.y, ambientColor.z);
 
 
         camera.Matrix(shaderProgram, "camMatrix");
