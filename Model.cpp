@@ -89,11 +89,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
                 tri.v1 = vertices[face.mIndices[1]].Position;
                 tri.v2 = vertices[face.mIndices[2]].Position;
                 this->collisionTriangles.push_back(tri);
-                std::cout << "Triángulo agregado: "
-                    << glm::to_string(tri.v0) << ", "
-                    << glm::to_string(tri.v1) << ", "
-                    << glm::to_string(tri.v2) << std::endl;
-
+          
             
         }
 
