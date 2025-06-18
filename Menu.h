@@ -1,4 +1,3 @@
-#pragma once
 #ifndef MENU_H
 #define MENU_H
 
@@ -20,9 +19,10 @@ private:
     int width, height;
     bool startClicked, exitClicked;
 
-    void drawRect(float x, float y, float w, float h);
     void setup2D();
+    void restore3D();
+    void drawRect(float x, float y, float w, float h);
 };
 
-#endif
 
+#endif

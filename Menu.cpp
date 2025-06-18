@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include <GL/gl.h>  // Solo si estás usando OpenGL compatibility (no core profile)
 
 Menu::Menu(int width, int height) : width(width), height(height) {
     startClicked = false;
@@ -23,6 +24,10 @@ void Menu::drawRect(float x, float y, float w, float h) {
 }
 
 void Menu::Draw(GLFWwindow* window) {
+    // Fondo claro para verificar que se está dibujando
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     setup2D();
 
     float botonAncho = 300, botonAlto = 60;
@@ -30,6 +35,7 @@ void Menu::Draw(GLFWwindow* window) {
     float yInicio = height / 2 + 50;
     float ySalir = height / 2 - 50;
 
+    // Dibujar botones
     glColor3f(0.7f, 0.2f, 0.2f); drawRect(xCentro, yInicio, botonAncho, botonAlto); // Iniciar
     glColor3f(0.2f, 0.2f, 0.7f); drawRect(xCentro, ySalir, botonAncho, botonAlto);  // Salir
 
