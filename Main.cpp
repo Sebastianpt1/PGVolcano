@@ -7,6 +7,7 @@ namespace fs = std::filesystem;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <stb/stb_image.h>
 
 #include "shaderClass.h"
 #include "Camera.h"
@@ -33,8 +34,88 @@ float cubeVertices[] = {
      0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f
 };
 
+float skyboxVertices[] = {
+    // Cara derecha
+    -1.0f,  1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    // Cara izquierda
+     1.0f,  1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f,  1.0f,
+
+     // Cara superior
+     -1.0f,  1.0f,  1.0f,
+     -1.0f,  1.0f, -1.0f,
+      1.0f,  1.0f, -1.0f,
+      1.0f,  1.0f, -1.0f,
+      1.0f,  1.0f,  1.0f,
+     -1.0f,  1.0f,  1.0f,
+
+     // Cara inferior
+     -1.0f, -1.0f, -1.0f,
+     -1.0f, -1.0f,  1.0f,
+      1.0f, -1.0f,  1.0f,
+      1.0f, -1.0f,  1.0f,
+      1.0f, -1.0f, -1.0f,
+     -1.0f, -1.0f, -1.0f,
+
+     // Cara frontal
+     -1.0f, -1.0f,  1.0f,
+     -1.0f,  1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,
+      1.0f,  1.0f,  1.0f,
+      1.0f, -1.0f,  1.0f,
+     -1.0f, -1.0f,  1.0f,
+
+     // Cara trasera
+     -1.0f,  1.0f, -1.0f,
+     -1.0f, -1.0f, -1.0f,
+      1.0f, -1.0f, -1.0f,
+      1.0f, -1.0f, -1.0f,
+      1.0f,  1.0f, -1.0f,
+     -1.0f,  1.0f, -1.0f
+};
+
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+unsigned int skyboxVAO, skyboxVBO;
+unsigned int cubemapTexture;
+
+unsigned int loadCubemap(std::vector<std::string> faces) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < faces.size(); i++) {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        }
+        else {
+            std::cout << "Error cargando cubemap: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
+}
 
 int main()
 {
@@ -64,6 +145,8 @@ int main()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 
     // Crear menú
     AppState estadoActual = MENU;
@@ -72,6 +155,7 @@ int main()
 
     // Objetos de simulación
     Shader shaderProgram("default.vert", "default.frag");
+    Shader skyboxShader("skybox.vert", "skybox.frag");
     Camera camera(width, height, glm::vec3(0.0f, 280.0f, 8.0f));
     Model model1(""), model2("");
     glm::vec3 playerPosition = glm::vec3(0.0f, 280.0f, 8.0f);
@@ -130,6 +214,26 @@ int main()
                     tri.v1 = glm::vec3(rot * glm::vec4(tri.v1, 1.0f));
                     tri.v2 = glm::vec3(rot * glm::vec4(tri.v2, 1.0f));
                 }
+                // Crear cubo blanco del skybox (provisional)
+                glGenVertexArrays(1, &skyboxVAO);
+                glGenBuffers(1, &skyboxVBO);
+                glBindVertexArray(skyboxVAO);
+                glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+                glBindVertexArray(0);
+
+                std::vector<std::string> faces = {
+                    parentDir + "/1Resume_Texturas/komi.jpg",
+                    parentDir + "/1Resume_Texturas/komi2.jpg",
+                    parentDir + "/1Resume_Texturas/komi3.jpg",
+                    parentDir + "/1Resume_Texturas/komi4.jpg",
+                    parentDir + "/1Resume_Texturas/komi5.jpg",
+                    parentDir + "/1Resume_Texturas/komi6.jpg"
+                };
+                cubemapTexture = loadCubemap(faces);
+
 
                 modelosCargados = true;
             }
@@ -228,7 +332,24 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glDepthMask(GL_TRUE);
         }
+        // Dibujar cubo blanco como skybox de prueba
+        shaderProgram.Activate();
 
+        glm::mat4 cubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(4500.0f)); // Hazlo grande para que se vea
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(cubeModel));
+
+        // Desactivar profundidad para que no tape otros objetos si quieres
+        // glDepthMask(GL_FALSE); 
+
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+
+        // glDepthMask(GL_TRUE);  // Reactivar si desactivaste profundidad
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

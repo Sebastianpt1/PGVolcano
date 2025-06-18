@@ -92,6 +92,9 @@
     <ClInclude Include="Menu.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="Personaje.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.frag">
@@ -107,6 +110,12 @@
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
     <None Include="default2.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="skybox.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
+    <None Include="skybox.vert">
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
   </ItemGroup>
