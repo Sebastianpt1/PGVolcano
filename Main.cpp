@@ -94,16 +94,29 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
+    // IMPORTANTE: No voltear las texturas al cargar
+    stbi_set_flip_vertically_on_load(false);
+
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {
-        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0); // ← NOTA: 0 aquí
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 
         if (data) {
             GLenum format = GL_RGB;
             if (nrChannels == 4) format = GL_RGBA;
 
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            // Carga la imagen al cubemap
+            glTexImage2D(
+                GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0,
+                format,
+                width,
+                height,
+                0,
+                format,
+                GL_UNSIGNED_BYTE,
+                data
+            );
             stbi_image_free(data);
         }
         else {
@@ -112,15 +125,18 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
         }
     }
 
+    // Filtrado lineal para evitar bordes duros
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // CLAVE: Evitar cortes entre caras
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return textureID;
-
 }
+
 
 
 int main()
@@ -230,14 +246,18 @@ int main()
                 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
                 glBindVertexArray(0);
 
-                std::string rojo = parentDir + "/PGVolcano/Textures/Skybox/negro.jpg";
+                stbi_set_flip_vertically_on_load(false);
                 std::vector<std::string> faces = {
-                    rojo, rojo, rojo, rojo, rojo, rojo
+                    parentDir + "/PGVolcano/Textures/Skybox/Daylight Box_Right.bmp", // right
+                    parentDir + "/PGVolcano/Textures/Skybox/Daylight Box_Left.bmp", // left
+                    parentDir + "/PGVolcano/Textures/Skybox/Daylight Box_Top.bmp", // top
+                    parentDir + "/PGVolcano/Textures/Skybox/Daylight Box_Bottom.bmp", // bottom
+                    parentDir + "/PGVolcano/Textures/Skybox/Daylight Box_Front.bmp", // front
+                    parentDir + "/PGVolcano/Textures/Skybox/Daylight Box_Back.bmp"  // back
                 };
 
+
                 cubemapTexture = loadCubemap(faces);
-
-
 
                 modelosCargados = true;
             }
@@ -325,7 +345,17 @@ int main()
             model2.Draw(shaderProgram);
 
 
+            shaderProgram.Activate();  // <- FALTABA ESTO antes de setear la camMatrix del cubo
+            // Desactivar rotación para el cubo (personaje)
+            glm::mat4 viewNoRotation = glm::mat4(glm::mat3(glm::lookAt(
+                camera.Position,
+                camera.Position + camera.Orientation,
+                camera.Up
+            )));
 
+            glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 10000.0f);
+            glm::mat4 camMatrixFixed = projection * viewNoRotation;
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(camMatrixFixed));
 
             //cubo(personaje///////
             glm::mat4 cubeModel = glm::translate(glm::mat4(1.0f), playerPosition);
