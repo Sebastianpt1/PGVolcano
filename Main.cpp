@@ -131,8 +131,8 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    unsigned int width = 1280;
-    unsigned int height = 800;
+    unsigned int width = 845;
+    unsigned int height = 480;
 
     GLFWwindow* window = glfwCreateWindow(width, height, "Simulacion Volcan", NULL, NULL);
     if (!window) {
@@ -230,7 +230,7 @@ int main()
                 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
                 glBindVertexArray(0);
 
-                std::string rojo = parentDir + "/PGVolcano/Textures/Skybox/komii.png";
+                std::string rojo = parentDir + "/PGVolcano/Textures/Skybox/negro.jpg";
                 std::vector<std::string> faces = {
                     rojo, rojo, rojo, rojo, rojo, rojo
                 };
