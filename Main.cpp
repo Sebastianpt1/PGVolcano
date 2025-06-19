@@ -86,8 +86,8 @@ float skyboxVertices[] = {
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-unsigned int skyboxVAO, skyboxVBO;
-unsigned int cubemapTexture;
+unsigned int skyboxVAO, skyboxVBO, cubemapTexture;
+
 
 unsigned int loadCubemap(std::vector<std::string> faces) {
     unsigned int textureID;
@@ -96,10 +96,14 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
 
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {
-        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0); // ← NOTA: 0 aquí
+
         if (data) {
+            GLenum format = GL_RGB;
+            if (nrChannels == 4) format = GL_RGBA;
+
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
         else {
@@ -115,7 +119,9 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return textureID;
+
 }
+
 
 int main()
 {
@@ -123,8 +129,7 @@ int main()
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     unsigned int width = 1280;
     unsigned int height = 800;
@@ -225,15 +230,13 @@ int main()
                 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
                 glBindVertexArray(0);
 
+                std::string rojo = parentDir + "/PGVolcano/Textures/Skybox/komii.png";
                 std::vector<std::string> faces = {
-                    parentDir + "/1Resume_Texturas/komi.jpg",
-                    parentDir + "/1Resume_Texturas/komi2.jpg",
-                    parentDir + "/1Resume_Texturas/komi3.jpg",
-                    parentDir + "/1Resume_Texturas/komi4.jpg",
-                    parentDir + "/1Resume_Texturas/komi5.jpg",
-                    parentDir + "/1Resume_Texturas/komi6.jpg"
+                    rojo, rojo, rojo, rojo, rojo, rojo
                 };
+
                 cubemapTexture = loadCubemap(faces);
+
 
 
                 modelosCargados = true;
@@ -315,7 +318,7 @@ int main()
             modelMatrix1 = glm::rotate(modelMatrix1, glm::radians(-180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix1));
             model1.Draw(shaderProgram);
-          
+
             glm::mat4 modelMatrix2 = glm::scale(glm::mat4(1.0f), glm::vec3(3.5f));
             modelMatrix2 = glm::rotate(modelMatrix2, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix2));
@@ -333,22 +336,23 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glDepthMask(GL_TRUE);
         }
-        // Dibujar cubo blanco como skybox de prueba
-        shaderProgram.Activate();
 
-        glm::mat4 cubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(4500.0f)); // Hazlo grande para que se vea
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(cubeModel));
+        glDepthFunc(GL_LEQUAL); // Asegura que se dibuje en el fondo
+        skyboxShader.Activate();
 
-        // Desactivar profundidad para que no tape otros objetos si quieres
-        // glDepthMask(GL_FALSE); 
+        glm::mat4 view = glm::mat4(glm::mat3(camera.cameraMatrix));
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 10000.0f);
+        glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-        glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glUniform1i(glGetUniformLocation(skyboxShader.ID, "skybox"), 0);
+
+        glBindVertexArray(skyboxVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
-
+        glDepthFunc(GL_LESS);
 
         // glDepthMask(GL_TRUE);  // Reactivar si desactivaste profundidad
         glfwSwapBuffers(window);
@@ -360,3 +364,4 @@ int main()
     glfwTerminate();
     return 0;
 }
+
