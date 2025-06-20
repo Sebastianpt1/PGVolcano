@@ -19,6 +19,9 @@ namespace fs = std::filesystem;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 unsigned int skyboxVAO, skyboxVBO, cubemapTexture;
+bool mostrarMenu = true;
+unsigned int menuTexture;
+
 
 void procesarInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -31,7 +34,7 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-    stbi_set_flip_vertically_on_load(false);
+    stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {
         unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
@@ -54,6 +57,33 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
 
     return textureID;
 }
+
+unsigned int cargarTexturaMenu(const std::string& path) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Parámetros de textura
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+    if (data) {
+        GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "Error al cargar la textura del menú: " << path << std::endl;
+    }
+    stbi_image_free(data);
+    return textureID;
+}
+
 
 int main() {
     glfwInit();
@@ -80,8 +110,39 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
+    float quadVertices[] = {
+        // posiciones   // texCoords
+        -1.0f,  1.0f,   0.0f, 1.0f,
+        -1.0f, -1.0f,   0.0f, 0.0f,
+         1.0f, -1.0f,   1.0f, 0.0f,
+
+        -1.0f,  1.0f,   0.0f, 1.0f,
+         1.0f, -1.0f,   1.0f, 0.0f,
+         1.0f,  1.0f,   1.0f, 1.0f
+    };
+
+    unsigned int quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    // Posición (location = 0)
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // TexCoords (location = 1)
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0); // <-- MUY IMPORTANTE
+
+
     Shader shaderProgram("default.vert", "default.frag");
     Shader skyboxShader("skybox.vert", "skybox.frag");
+
     Camera camera(width, height, glm::vec3(0.0f, 280.0f, 8.0f));
 
     glm::vec3 playerPosition = glm::vec3(0.0f, 280.0f, 8.0f);
@@ -101,6 +162,9 @@ int main() {
     std::string parentDir = fs::current_path().parent_path().string();
     Model model1((parentDir + "/PGVolcano/Models/fumo/scene.gltf").c_str());
     Model model2((parentDir + "/PGVolcano/Models/fuji/scene.gltf").c_str());
+    Shader menuShader("menu.vert", "menu.frag");
+    std::string menuPath = parentDir + "/PGVolcano/Textures/MenuFrames/ezgif-frame-001.jpg";
+    menuTexture = cargarTexturaMenu(menuPath);
 
     for (auto& tri : model2.collisionTriangles) {
         tri.v0 *= 3.5f; tri.v1 *= 3.5f; tri.v2 *= 3.5f;
@@ -130,6 +194,31 @@ int main() {
     cubemapTexture = loadCubemap(faces);
 
     while (!glfwWindowShouldClose(window)) {
+
+        if (mostrarMenu) {
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+                mostrarMenu = false;
+                continue;
+            }
+
+            glClearColor(0, 0, 0, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            glDisable(GL_DEPTH_TEST); // <-- ESTA LÍNEA NUEVA
+
+            menuShader.Activate();
+            glBindVertexArray(quadVAO);
+            glBindTexture(GL_TEXTURE_2D, menuTexture);
+            glUniform1i(glGetUniformLocation(menuShader.ID, "menuTexture"), 0);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            glEnable(GL_DEPTH_TEST); // <-- Reactiva después
+
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+            continue;
+        }
+
         glClearColor(0.05f, 0.07f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
