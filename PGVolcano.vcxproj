@@ -162,6 +162,8 @@
     <None Include="default.frag" />
     <None Include="default.vert" />
     <None Include="default2.frag" />
+    <None Include="lava.frag" />
+    <None Include="lava.vert" />
     <None Include="light.frag" />
     <None Include="light.vert" />
     <None Include="menu.frag" />
