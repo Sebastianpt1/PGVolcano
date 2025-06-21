@@ -40,7 +40,7 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
     int width, height, nrChannels;
     for (unsigned int i = 0; i < faces.size(); i++) {
         unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
@@ -378,7 +378,7 @@ int main() {
 
         glDepthFunc(GL_LEQUAL);
         skyboxShader.Activate();
-        glm::mat4 view = glm::mat4(glm::mat3(camera.cameraMatrix));
+        glm::mat4 view = glm::lookAt(glm::vec3(0.0f), camera.Orientation, camera.Up);
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 10000.0f);
         glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(skyboxShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
