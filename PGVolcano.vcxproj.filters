@@ -120,9 +120,5 @@
     </None>
     <None Include="menu.frag" />
     <None Include="menu.vert" />
-    <None Include="lava.frag">
-      <Filter>Archivos de recursos\Shaders</Filter>
-    </None>
-    <None Include="lava.vert" />
   </ItemGroup>
 </Project>

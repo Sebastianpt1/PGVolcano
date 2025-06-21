@@ -21,10 +21,6 @@ float lastFrame = 0.0f;
 unsigned int skyboxVAO, skyboxVBO, cubemapTexture;
 bool mostrarMenu = true;
 unsigned int menuTexture;
-unsigned int lavaVAO, lavaVBO, lavaEBO, lavaTexture;
-Shader* lavaShader = nullptr;
-std::vector<float> circleVertices;
-std::vector<unsigned int> circleIndices;
 
 
 void procesarInput(GLFWwindow* window) {
@@ -170,65 +166,6 @@ int main() {
     std::string menuPath = parentDir + "/PGVolcano/Textures/MenuFrames/ezgif-frame-001.jpg";
     menuTexture = cargarTexturaMenu(menuPath);
 
-    //PARA LA LAVA
-    int numSegments = 50;
-    float radius = 150.0f;
-
-    // Centro
-    circleVertices.push_back(0.0f); // x
-    circleVertices.push_back(0.0f); // y
-    circleVertices.push_back(0.0f); // z
-    circleVertices.push_back(0.5f); // u
-    circleVertices.push_back(0.5f); // v
-
-    for (int i = 0; i <= numSegments; ++i) {
-        float angle = 2.0f * 3.1415926f * i / numSegments;
-        float x = cos(angle) * radius;
-        float z = sin(angle) * radius;
-        circleVertices.push_back(x);
-        circleVertices.push_back(0.0f);
-        circleVertices.push_back(z);
-        circleVertices.push_back((x / (2.0f * radius)) + 0.5f); // u
-        circleVertices.push_back((z / (2.0f * radius)) + 0.5f); // v
-
-        if (i > 0) {
-            circleIndices.push_back(0);
-            circleIndices.push_back(i);
-            circleIndices.push_back(i + 1);
-        }
-    }
-
-    glGenVertexArrays(1, &lavaVAO);
-    glGenBuffers(1, &lavaVBO);
-    glGenBuffers(1, &lavaEBO);
-    glBindVertexArray(lavaVAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, lavaVBO);
-    glBufferData(GL_ARRAY_BUFFER, circleVertices.size() * sizeof(float), &circleVertices[0], GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lavaEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, circleIndices.size() * sizeof(unsigned int), &circleIndices[0], GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    lavaShader = new Shader("lava.vert", "lava.frag");
-
-    std::string lavaPath = parentDir + "/PGVolcano/lava.jpg";
-    int w, h, ch;
-    unsigned char* lavaData = stbi_load(lavaPath.c_str(), &w, &h, &ch, 0);
-    glGenTextures(1, &lavaTexture);
-    glBindTexture(GL_TEXTURE_2D, lavaTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, lavaData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_image_free(lavaData);
-
     for (auto& tri : model2.collisionTriangles) {
         tri.v0 *= 3.5f; tri.v1 *= 3.5f; tri.v2 *= 3.5f;
         glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -349,22 +286,6 @@ int main() {
         modelMatrix2 = glm::rotate(modelMatrix2, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix2));
         model2.Draw(shaderProgram);
-
-        lavaShader->Activate();
-        camera.Matrix(*lavaShader, "camMatrix");
-
-        glm::mat4 lavaModel = glm::translate(glm::mat4(1.0f), glm::vec3(1400.0f, 400.5f, 2200.0f)); // dentro del cráter
-        lavaModel = glm::scale(lavaModel, glm::vec3(5.0f));
-        glUniformMatrix4fv(glGetUniformLocation(lavaShader->ID, "model"), 1, GL_FALSE, glm::value_ptr(lavaModel));
-        glUniform1f(glGetUniformLocation(lavaShader->ID, "time"), glfwGetTime());
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, lavaTexture);
-        glUniform1i(glGetUniformLocation(lavaShader->ID, "lavaTexture"), 0);
-
-        glBindVertexArray(lavaVAO);
-        glDrawElements(GL_TRIANGLES, circleIndices.size(), GL_UNSIGNED_INT, 0);
-
 
         glm::mat4 cubeModel = glm::translate(glm::mat4(1.0f), playerPosition);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(cubeModel));
