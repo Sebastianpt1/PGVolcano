@@ -18,6 +18,11 @@ namespace fs = std::filesystem;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+float lavaY = 400.5f;            // Altura inicial de la lava (misma que usamos en translate)
+bool erupcionActiva = false;     // Estado de erupción
+float alturaMaxima = 500.0f;     // Altura hasta la que subirá la lava
+float velocidadLava = 10.0f;     // Qué tan rápido sube por segundo
+
 unsigned int skyboxVAO, skyboxVBO, cubemapTexture;
 bool mostrarMenu = true;
 unsigned int menuTexture;
@@ -174,7 +179,7 @@ int main() {
 
     //PARA LA LAVA
     int numSegments = 50;
-    float radius = 150.0f;
+    float radius = 120.0f;
 
     // Centro
     circleVertices.push_back(0.0f); // x
@@ -288,7 +293,26 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float currentFrame = glfwGetTime();
+
         deltaTime = currentFrame - lastFrame;
+        // Detectar tecla X para iniciar erupción
+        static bool xPresionada = false;
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && !xPresionada) {
+            erupcionActiva = true;
+            xPresionada = true;
+        }
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_RELEASE) {
+            xPresionada = false;
+        }
+		// Si la erupción está activa, aumentar la altura de la lava
+        // Subir la lava si está activa la erupción
+        if (erupcionActiva && lavaY < alturaMaxima) {
+            lavaY += velocidadLava * deltaTime;
+            if (lavaY >= alturaMaxima) {
+                lavaY = alturaMaxima;
+                erupcionActiva = false; // detener erupción cuando alcanza el tope
+            }
+        }
         lastFrame = currentFrame;
 
         procesarInput(window);
@@ -355,7 +379,7 @@ int main() {
         lavaShader->Activate();
         camera.Matrix(*lavaShader, "camMatrix");
 
-        glm::mat4 lavaModel = glm::translate(glm::mat4(1.0f), glm::vec3(1400.0f, 400.5f, 2200.0f)); // dentro del cráter
+        glm::mat4 lavaModel = glm::translate(glm::mat4(1.0f), glm::vec3(1400.0f, lavaY, 2200.0f)); // dentro del cráter
         lavaModel = glm::scale(lavaModel, glm::vec3(5.0f));
         glUniformMatrix4fv(glGetUniformLocation(lavaShader->ID, "model"), 1, GL_FALSE, glm::value_ptr(lavaModel));
         glUniform1f(glGetUniformLocation(lavaShader->ID, "time"), glfwGetTime());
