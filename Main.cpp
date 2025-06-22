@@ -8,6 +8,9 @@ namespace fs = std::filesystem;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <stb/stb_image.h>
+#include <irrKlang/includes/irrKlang.h>
+using namespace irrklang;
+#pragma comment(lib, "irrKlang.lib")
 
 #include "shaderClass.h"
 #include "Camera.h"
@@ -61,13 +64,10 @@ Shader* particleShader = nullptr;
 std::vector<float> circleVertices;
 std::vector<unsigned int> circleIndices;
 
-
-
 void procesarInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
-
 
 unsigned int loadCubemap(std::vector<std::string> faces) {
     unsigned int textureID;
@@ -246,6 +246,13 @@ int main() {
     cargarFramesAnimacionMenu(parentDir + "/PGVolcano/Textures/MenuFrames", 50); 
     texturaCreditos = cargarTexturaMenu(parentDir + "/PGVolcano/Textures/MenuFrames/creditos.png");
 
+    ISoundEngine* engine = createIrrKlangDevice();
+    ISound* sonidoErupcion = nullptr;
+    if (!engine)
+    {
+        std::cout << "No se pudo inicializar irrKlang" << std::endl;
+        return -1;
+    }
 
     //PARA LA LAVA
     int numSegments = 50;
@@ -503,6 +510,10 @@ int main() {
         static bool xPresionada = false;
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && !xPresionada) {
             xPresionada = true;
+            if (sonidoErupcion && !sonidoErupcion->isFinished()) {
+                sonidoErupcion->stop();  // Detiene la reproducción anterior
+            }
+            sonidoErupcion = engine->play2D("media/erupcion.mp3", false, false, true);
 
             explotar = true;
             lavaY = 400.5f;         // Reiniciar lava
@@ -512,11 +523,11 @@ int main() {
             for (int i = 0; i < 800; ++i) {
                 float angle = glm::radians(static_cast<float>(rand() % 360));
                 float elevation = ((rand() % 100) / 100.0f) * glm::radians(60.0f);
-                float speed = 70.0f + static_cast<float>(rand() % 30);
+                float speed = 70.0f + static_cast<float>(rand() % 60);
 
                 glm::vec3 dir = glm::vec3(
                     cos(angle) * cos(elevation),
-                    sin(elevation) * 6.5f,
+                    sin(elevation) * 3.5f,
                     sin(angle) * cos(elevation)
                 );
 
@@ -525,7 +536,7 @@ int main() {
                 float offsetZ = sin(angle) * r;
 
                 ParticulaExplosion p;
-                p.posicion = glm::vec3(1400.0f + offsetX, lavaY + 180.0f, 2200.0f + offsetZ);
+                p.posicion = glm::vec3(1400.0f + offsetX, lavaY + 130.0f, 2200.0f + offsetZ);
                 p.velocidad = dir * speed;
                 p.vida = 4.0f + static_cast<float>(rand() % 100) / 50.0f;
 
