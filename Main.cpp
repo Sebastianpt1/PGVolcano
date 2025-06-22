@@ -23,6 +23,19 @@ bool erupcionActiva = false;     // Estado de erupción
 float alturaMaxima = 500.0f;     // Altura hasta la que subirá la lava
 float velocidadLava = 10.0f;     // Qué tan rápido sube por segundo
 
+unsigned int width = 1920, height = 1080;
+int botonAncho = 460;
+int botonAlto = 90;
+
+int btnIniciarX = 180;
+int btnIniciarY = 645;
+
+int btnCreditosX = 1280;
+int btnCreditosY = 645;
+
+int btnSalirX = 720;
+int btnSalirY = 440;
+
 unsigned int skyboxVAO, skyboxVBO, cubemapTexture;
 bool mostrarMenu = true;
 unsigned int menuTexture;
@@ -95,6 +108,43 @@ unsigned int cargarTexturaMenu(const std::string& path) {
     return textureID;
 }
 
+unsigned int texturaCreditos;
+
+bool clicDentroDeBoton(double mouseX, double mouseY, float x, float y, float ancho, float alto, int ventanaAltura) {
+    float mouseYInvertido = ventanaAltura - static_cast<float>(mouseY);
+
+    // Compensación pequeña en Y (ajusta según necesites)
+    mouseYInvertido -= 30;  // Aumenta si el clic está demasiado bajo
+
+    return mouseX >= x && mouseX <= x + ancho &&
+        mouseYInvertido >= y && mouseYInvertido <= y + alto;
+}
+
+
+
+
+std::vector<unsigned int> menuFrames;
+float frameTimer = 0.0f;
+int currentAnimFrame = 0;
+float frameDuration = 0.1f; // Cambia de imagen cada 0.1 segundos
+
+void cargarFramesAnimacionMenu(const std::string& carpeta, int total) {
+    for (int i = 1; i <= total; ++i) {
+        std::string path = carpeta + "/Frame" + std::to_string(i) + ".jpg";
+        std::cout << "Cargando frame: " << path << std::endl;
+        menuFrames.push_back(cargarTexturaMenu(path));
+    }
+}
+
+enum AppState {
+    ESTADO_MENU,
+    ESTADO_CREDITOS,
+    ESTADO_SIMULACION
+};
+
+AppState estadoActual = ESTADO_MENU;
+
+
 
 int main() {
     glfwInit();
@@ -110,6 +160,8 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
+    float escalaX = (float)width / 1920.0f;
+    float escalaY = (float)height / 1080.0f;
 
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwSetWindowPos(window, (mode->width - width) / 2, (mode->height - height) / 2);
@@ -174,8 +226,10 @@ int main() {
     Model model1((parentDir + "/PGVolcano/Models/fumo/scene.gltf").c_str());
     Model model2((parentDir + "/PGVolcano/Models/fuji/scene.gltf").c_str());
     Shader menuShader("menu.vert", "menu.frag");
-    std::string menuPath = parentDir + "/PGVolcano/Textures/MenuFrames/ezgif-frame-001.jpg";
-    menuTexture = cargarTexturaMenu(menuPath);
+ 
+    cargarFramesAnimacionMenu(parentDir + "/PGVolcano/Textures/MenuFrames", 50); 
+    texturaCreditos = cargarTexturaMenu(parentDir + "/PGVolcano/Textures/MenuFrames/creditos.png");
+
 
     //PARA LA LAVA
     int numSegments = 50;
@@ -264,37 +318,104 @@ int main() {
     cubemapTexture = loadCubemap(faces);
 
     while (!glfwWindowShouldClose(window)) {
-
-        if (mostrarMenu) {
-            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-                mostrarMenu = false;
-                continue;
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        if (estadoActual == ESTADO_MENU) {
+            frameTimer += deltaTime;
+            if (frameTimer >= frameDuration) {
+                frameTimer = 0.0f;
+                currentAnimFrame = (currentAnimFrame + 1) % menuFrames.size(); // bucle circular
             }
+
+            static bool mouseLiberado = true;
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouseLiberado) {
+                double mouseX, mouseY;
+                glfwGetCursorPos(window, &mouseX, &mouseY);
+
+                if (clicDentroDeBoton(mouseX, mouseY, btnIniciarX * escalaX, btnIniciarY * escalaY, botonAncho * escalaX, botonAlto * escalaY, height)) {
+                    std::cout << "Iniciar simulación\n";
+                    estadoActual = ESTADO_SIMULACION;
+                }
+                else if (clicDentroDeBoton(mouseX, mouseY, btnCreditosX * escalaX, btnCreditosY * escalaY, botonAncho * escalaX, botonAlto * escalaY, height)) {
+                    std::cout << "Ver créditos\n";
+                    estadoActual = ESTADO_CREDITOS;
+                }
+
+                else if (clicDentroDeBoton(mouseX, mouseY, btnSalirX * escalaX, btnSalirY * escalaY, botonAncho * escalaX, botonAlto * escalaY, height)) {
+                    std::cout << "Salir\n";
+                    glfwSetWindowShouldClose(window, true);
+                }
+
+                mouseLiberado = false;
+            }
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+                mouseLiberado = true;
+            }
+
+
 
             glClearColor(0, 0, 0, 1);
             glClear(GL_COLOR_BUFFER_BIT);
-
-            glDisable(GL_DEPTH_TEST); // <-- ESTA LÍNEA NUEVA
+            glDisable(GL_DEPTH_TEST);
 
             menuShader.Activate();
             glBindVertexArray(quadVAO);
-            glBindTexture(GL_TEXTURE_2D, menuTexture);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, menuFrames[currentAnimFrame]);
             glUniform1i(glGetUniformLocation(menuShader.ID, "menuTexture"), 0);
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
-            glEnable(GL_DEPTH_TEST); // <-- Reactiva después
+            glEnable(GL_DEPTH_TEST);
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+            continue;
+        }
+        else if (estadoActual == ESTADO_CREDITOS) {
+            glClearColor(0, 0, 0, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glDisable(GL_DEPTH_TEST);
+
+            menuShader.Activate();
+            glBindVertexArray(quadVAO);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texturaCreditos);
+            glUniform1i(glGetUniformLocation(menuShader.ID, "menuTexture"), 0);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            glEnable(GL_DEPTH_TEST);
+
+            static bool mouseLiberado = true;
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouseLiberado) {
+                double mouseX, mouseY;
+                glfwGetCursorPos(window, &mouseX, &mouseY);
+
+                int volverX = 50;
+                int volverY = 50;
+                int volverAncho = 200;
+                int volverAlto = 70;
+
+                if (clicDentroDeBoton(mouseX, mouseY, volverX * escalaX, volverY * escalaY, volverAncho * escalaX, volverAlto * escalaY, height)) {
+                    std::cout << "Volviendo al menú\n";
+                    estadoActual = ESTADO_MENU;
+                }
+
+                mouseLiberado = false;
+            }
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+                mouseLiberado = true;
+            }
 
             glfwSwapBuffers(window);
             glfwPollEvents();
             continue;
         }
 
+
         glClearColor(0.05f, 0.07f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float currentFrame = glfwGetTime();
-
-        deltaTime = currentFrame - lastFrame;
+        
         // Detectar tecla X para iniciar erupción
         static bool xPresionada = false;
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && !xPresionada) {
@@ -313,7 +434,7 @@ int main() {
                 erupcionActiva = false; // detener erupción cuando alcanza el tope
             }
         }
-        lastFrame = currentFrame;
+        
 
         procesarInput(window);
         camera.Inputs(window);
