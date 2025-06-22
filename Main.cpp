@@ -22,6 +22,16 @@ float lavaY = 400.5f;            // Altura inicial de la lava (misma que usamos 
 bool erupcionActiva = false;     // Estado de erupción
 float alturaMaxima = 500.0f;     // Altura hasta la que subirá la lava
 float velocidadLava = 10.0f;     // Qué tan rápido sube por segundo
+struct ParticulaExplosion {
+    glm::vec3 posicion;
+    glm::vec3 velocidad;
+    float vida;
+};
+
+std::vector<ParticulaExplosion> particulasLava;
+const int MAX_EXPLOSION = 500;
+bool explotar = false;
+
 
 unsigned int width = 1920, height = 1080;
 int botonAncho = 460;
@@ -41,7 +51,13 @@ bool mostrarMenu = true;
 unsigned int menuTexture;
 
 unsigned int lavaVAO, lavaVBO, lavaEBO, lavaTexture;
+std::vector<float> esferaVertices;
+std::vector<unsigned int> esferaIndices;
+
+unsigned int esferaVAO, esferaVBO, esferaEBO;
 Shader* lavaShader = nullptr;
+unsigned int particleVAO, particleVBO;
+Shader* particleShader = nullptr;
 std::vector<float> circleVertices;
 std::vector<unsigned int> circleIndices;
 
@@ -277,6 +293,73 @@ int main() {
 
     lavaShader = new Shader("lava.vert", "lava.frag");
 
+    int sectores = 20;
+    int stacks = 20;
+    float radio = 1.0f;
+
+    for (int i = 0; i <= stacks; ++i) {
+        float v = float(i) / stacks;
+        float phi = v * glm::pi<float>();
+
+        for (int j = 0; j <= sectores; ++j) {
+            float u = float(j) / sectores;
+            float theta = u * 2.0f * glm::pi<float>();
+
+            float x = cos(theta) * sin(phi);
+            float y = cos(phi);
+            float z = sin(theta) * sin(phi);
+
+            esferaVertices.push_back(x * radio);
+            esferaVertices.push_back(y * radio);
+            esferaVertices.push_back(z * radio);
+        }
+    }
+
+    for (int i = 0; i < stacks; ++i) {
+        for (int j = 0; j < sectores; ++j) {
+            int first = i * (sectores + 1) + j;
+            int second = first + sectores + 1;
+
+            esferaIndices.push_back(first);
+            esferaIndices.push_back(second);
+            esferaIndices.push_back(first + 1);
+
+            esferaIndices.push_back(second);
+            esferaIndices.push_back(second + 1);
+            esferaIndices.push_back(first + 1);
+        }
+    }
+
+    glGenVertexArrays(1, &esferaVAO);
+    glGenBuffers(1, &esferaVBO);
+    glGenBuffers(1, &esferaEBO);
+
+    glBindVertexArray(esferaVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, esferaVBO);
+    glBufferData(GL_ARRAY_BUFFER, esferaVertices.size() * sizeof(float), &esferaVertices[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, esferaEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, esferaIndices.size() * sizeof(unsigned int), &esferaIndices[0], GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+
+
+    glGenVertexArrays(1, &particleVAO);
+    glGenBuffers(1, &particleVBO);
+    glBindVertexArray(particleVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
+    glBufferData(GL_ARRAY_BUFFER, MAX_EXPLOSION * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW); // reserva
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
+    particleShader = new Shader("particle.vert", "particle.frag");
+
     std::string lavaPath = parentDir + "/PGVolcano/lava.jpg";
     int w, h, ch;
     unsigned char* lavaData = stbi_load(lavaPath.c_str(), &w, &h, &ch, 0);
@@ -419,21 +502,78 @@ int main() {
         // Detectar tecla X para iniciar erupción
         static bool xPresionada = false;
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && !xPresionada) {
-            erupcionActiva = true;
             xPresionada = true;
+
+            explotar = true;
+            lavaY = 400.5f;         // Reiniciar lava
+            erupcionActiva = true;  // Activar subida
+            particulasLava.clear();
+
+            for (int i = 0; i < 800; ++i) {
+                float angle = glm::radians(static_cast<float>(rand() % 360));
+                float elevation = ((rand() % 100) / 100.0f) * glm::radians(60.0f);
+                float speed = 70.0f + static_cast<float>(rand() % 30);
+
+                glm::vec3 dir = glm::vec3(
+                    cos(angle) * cos(elevation),
+                    sin(elevation) * 6.5f,
+                    sin(angle) * cos(elevation)
+                );
+
+                float r = 7.5f;
+                float offsetX = cos(angle) * r;
+                float offsetZ = sin(angle) * r;
+
+                ParticulaExplosion p;
+                p.posicion = glm::vec3(1400.0f + offsetX, lavaY + 180.0f, 2200.0f + offsetZ);
+                p.velocidad = dir * speed;
+                p.vida = 4.0f + static_cast<float>(rand() % 100) / 50.0f;
+
+                particulasLava.push_back(p);
+            }
         }
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_RELEASE) {
             xPresionada = false;
         }
-		// Si la erupción está activa, aumentar la altura de la lava
-        // Subir la lava si está activa la erupción
-        if (erupcionActiva && lavaY < alturaMaxima) {
+
+        // ⬇️ BLOQUE QUE SUBE LA LAVA
+        if (erupcionActiva) {
             lavaY += velocidadLava * deltaTime;
             if (lavaY >= alturaMaxima) {
                 lavaY = alturaMaxima;
-                erupcionActiva = false; // detener erupción cuando alcanza el tope
+                erupcionActiva = false;
             }
         }
+
+        // ⬇️ BLOQUE QUE ACTUALIZA LAS PARTÍCULAS
+        if (explotar) {
+            for (auto& p : particulasLava) {
+                if (p.vida > 0.0f) {
+                    p.posicion += p.velocidad * deltaTime;
+                    p.velocidad.y -= 20.0f * deltaTime; // gravedad
+                    p.vida -= deltaTime;
+                }
+            }
+        }
+
+        lastFrame = currentFrame;
+
+
+        shaderProgram.Activate();
+        camera.Matrix(shaderProgram, "camMatrix");
+
+        glBindVertexArray(esferaVAO);
+
+        for (auto& p : particulasLava) {
+            if (p.vida > 0.0f) {
+                glm::mat4 modelo = glm::translate(glm::mat4(1.0f), p.posicion);
+                modelo = glm::scale(modelo, glm::vec3(20.0f)); // Cambia 20.0f si quieres más grandes
+                glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelo));
+                glDrawElements(GL_TRIANGLES, esferaIndices.size(), GL_UNSIGNED_INT, 0);
+            }
+        }
+
+        glBindVertexArray(0);
         
 
         procesarInput(window);
@@ -512,6 +652,28 @@ int main() {
         glBindVertexArray(lavaVAO);
         glDrawElements(GL_TRIANGLES, circleIndices.size(), GL_UNSIGNED_INT, 0);
 
+        if (explotar) {
+            glDisable(GL_DEPTH_TEST);     // Que no se oculten por el terreno
+            glEnable(GL_PROGRAM_POINT_SIZE); // Permite tamaños grandes
+
+            particleShader->Activate();
+            camera.Matrix(*particleShader, "camMatrix");
+
+            glBindVertexArray(esferaVAO);  // si estás usando VAO de partículas
+
+            glPointSize(10.0f); // Aumenta si lo deseas
+
+            for (auto& p : particulasLava) {
+                if (p.vida > 0.0f) {
+                    glm::mat4 modelParticula = glm::translate(glm::mat4(1.0f), p.posicion);
+                    modelParticula = glm::scale(modelParticula, glm::vec3(8.0f)); // tamaño esfera
+                    glUniformMatrix4fv(glGetUniformLocation(particleShader->ID, "model"), 1, GL_FALSE, glm::value_ptr(modelParticula));
+                    glDrawElements(GL_TRIANGLES, esferaIndices.size(), GL_UNSIGNED_INT, 0);
+                }
+            }
+
+            glEnable(GL_DEPTH_TEST);
+        }
 
         glm::mat4 cubeModel = glm::translate(glm::mat4(1.0f), playerPosition);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(cubeModel));

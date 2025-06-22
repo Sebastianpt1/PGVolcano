@@ -120,5 +120,9 @@
     </None>
     <None Include="menu.frag" />
     <None Include="menu.vert" />
+    <None Include="lava.frag" />
+    <None Include="lava.vert" />
+    <None Include="particle.frag" />
+    <None Include="particle.vert" />
   </ItemGroup>
 </Project>

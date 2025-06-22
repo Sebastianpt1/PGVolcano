@@ -168,6 +168,8 @@
     <None Include="light.vert" />
     <None Include="menu.frag" />
     <None Include="menu.vert" />
+    <None Include="particle.frag" />
+    <None Include="particle.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
   </ItemGroup>
