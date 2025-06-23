@@ -76,7 +76,7 @@ This project is for educational purposes. All models, textures, and audio used a
 
 ## 🎥 Demo Video
 
-[![Watch the video](https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+[![Watch the video](https://img.youtube.com/vi/lAnkaRRoG4w/hqdefault.jpg)](https://www.youtube.com/watch?v=lAnkaRRoG4w)
 
 
 Authors
