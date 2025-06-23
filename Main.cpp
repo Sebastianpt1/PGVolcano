@@ -248,6 +248,9 @@ int main() {
 
     ISoundEngine* engine = createIrrKlangDevice();
     ISound* sonidoErupcion = nullptr;
+    ISound* musicaMenu = nullptr;
+    ISound* musicaSimulacion = nullptr;
+
     if (!engine)
     {
         std::cout << "No se pudo inicializar irrKlang" << std::endl;
@@ -412,6 +415,13 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         if (estadoActual == ESTADO_MENU) {
+            static bool musicaMenuReproduciendo = false;
+            if (!musicaMenuReproduciendo) {
+                if (musicaSimulacion) musicaSimulacion->stop(); // detener música simulación
+                musicaMenu = engine->play2D("media/lag_train.mp3", true, false, true);
+                musicaMenuReproduciendo = true;
+            }
+
             frameTimer += deltaTime;
             if (frameTimer >= frameDuration) {
                 frameTimer = 0.0f;
@@ -426,7 +436,12 @@ int main() {
                 if (clicDentroDeBoton(mouseX, mouseY, btnIniciarX * escalaX, btnIniciarY * escalaY, botonAncho * escalaX, botonAlto * escalaY, height)) {
                     std::cout << "Iniciar simulación\n";
                     estadoActual = ESTADO_SIMULACION;
+
+                    if (musicaMenu) musicaMenu->stop();
+                    musicaSimulacion = engine->play2D("media/Aria_Math.mp3", true, false, true);
+                    musicaMenuReproduciendo = false;
                 }
+
                 else if (clicDentroDeBoton(mouseX, mouseY, btnCreditosX * escalaX, btnCreditosY * escalaY, botonAncho * escalaX, botonAlto * escalaY, height)) {
                     std::cout << "Ver créditos\n";
                     estadoActual = ESTADO_CREDITOS;
