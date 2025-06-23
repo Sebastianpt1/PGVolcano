@@ -583,7 +583,6 @@ int main() {
                 int volverAncho = 230;
                 int volverAlto = 80;
 
-
                 if (clicDentroDeBoton(mouseX, mouseY, volverX * escalaX, volverY * escalaY, volverAncho * escalaX, volverAlto * escalaY, height)) {
                     motorSonido->play2D("media/click.mp3", false);
                     std::cout << "Volviendo al menú\n";

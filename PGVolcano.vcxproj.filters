@@ -103,13 +103,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="light.frag">
-      <Filter>Archivos de recursos\Shaders</Filter>
-    </None>
     <None Include="default.frag">
-      <Filter>Archivos de recursos\Shaders</Filter>
-    </None>
-    <None Include="light.vert">
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
     <None Include="default.vert">

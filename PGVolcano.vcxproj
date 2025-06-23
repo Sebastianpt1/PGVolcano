@@ -168,8 +168,6 @@
     <None Include="lava.vert" />
     <None Include="lava_stream.frag" />
     <None Include="lava_stream.vert" />
-    <None Include="light.frag" />
-    <None Include="light.vert" />
     <None Include="menu.frag" />
     <None Include="menu.vert" />
     <None Include="particle.frag" />
