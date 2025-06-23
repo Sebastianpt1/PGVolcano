@@ -78,11 +78,11 @@ This project is for educational purposes. All models, textures, and audio used a
 
 [![Watch the video](https://img.youtube.com/vi/lAnkaRRoG4w/hqdefault.jpg)](https://www.youtube.com/watch?v=lAnkaRRoG4w)
 
-## Project Report
+## 📄 Project Report
 
 You can download the final report here:
 
-➡️ [Download Informe Final (Word)](images/PGVOLCANO.docx)
+➡️ [📥 Download Informe Final (Word)](images/PGVOLCANO.docx)
 
 
 Authors
