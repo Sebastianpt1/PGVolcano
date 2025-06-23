@@ -192,7 +192,7 @@ int main() {
         return -1;
     }
     unsigned int width = 845, height = 480;
-    GLFWwindow* window = glfwCreateWindow(width, height, "Simulacion Volcan", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(width, height, "PGVOLCANO", NULL, NULL);
     if (!window) {
         std::cout << "No se pudo crear la ventana GLFW\n";
         glfwTerminate();
