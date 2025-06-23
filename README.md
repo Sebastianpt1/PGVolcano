@@ -77,8 +77,7 @@ This project is for educational purposes. All models, textures, and audio used a
 👥 Authors
 ## 👥 Authors
 
-
-- **JuanPerez123** – Terrain modeling and rendering – [@Sebastianpt1](https://github.com/Sebastianpt1)
-- **MariaDev45** – Lava particles, lava rivers, shaders, eruption logic – [@wilmor03](https://github.com/wilmor03)
-- **KevinCGFX** – Cube character, physics, terrain collision – [@Juanff7](https://github.com/Juanff7)
-- **CarlosSim** – Animated main menu, transitions, user input – [@CCano626](https://github.com/CCano626)
+- **Potoy Sebastian Ernesto** – Terrain modeling and rendering – [@Sebastianpt1](https://github.com/Sebastianpt1)
+- **Vega Cruz Wilmor José** – Lava particles, lava rivers, shaders, eruption logic – [@wilmor03](https://github.com/wilmor03)
+- **Montiel Acevedo Juan Francisco** – Cube character, physics, terrain collision – [@Juanff7](https://github.com/Juanff7)
+- **Castillo Cano Agustín Manuel** – Animated main menu, transitions, user input – [@CCano626](https://github.com/CCano626)
