@@ -82,7 +82,7 @@ This project is for educational purposes. All models, textures, and audio used a
 
 You can download the final report here:
 
-➡️ [Download Informe Final (Word)](images/Informe PGVolcano.docx)
+➡️ [Download Informe Final (Word)](images/Informe-PGVolcano.docx)
 
 
 Authors
