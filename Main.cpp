@@ -178,8 +178,13 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     ISoundEngine* motorSonido = createIrrKlangDevice();
+    ISound* sonidoErupcion = nullptr;
+    ISound* musicaMenu = nullptr;
+    ISound* musicaSimulacion = nullptr;
+
     if (!motorSonido) {
         std::cout << "No se pudo inicializar irrKlang.\n";
+        musicaMenu = motorSonido->play2D("media/menu.mp3", true, false, true); // loop=true
         return -1;
     }
     unsigned int width = 845, height = 480;
@@ -264,9 +269,6 @@ int main() {
 
 
     ISoundEngine* engine = createIrrKlangDevice();
-    ISound* sonidoErupcion = nullptr;
-    ISound* musicaMenu = nullptr;
-    ISound* musicaSimulacion = nullptr;
 
     if (!engine)
     {
@@ -432,6 +434,10 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         if (estadoActual == ESTADO_MENU) {
+            if (!musicaMenu || musicaMenu->isFinished()) {
+                if (musicaSimulacion) musicaSimulacion->stop();
+                musicaMenu = motorSonido->play2D("media/Living_Mice.mp3", true, false, true);
+            }
             frameTimer += deltaTime;
             if (frameTimer >= frameDuration) {
                 frameTimer = 0.0f;
@@ -448,6 +454,11 @@ int main() {
                 if (fadeAlpha <= 0.0f) {
                     fadeAlpha = 0.0f;
                     estadoActual = ESTADO_SIMULACION;
+                    if (!musicaSimulacion || musicaSimulacion->isFinished()) {
+                        if (musicaMenu) musicaMenu->stop();
+                        musicaSimulacion = motorSonido->play2D("media/Aria_Math.mp3", true, false, true);
+                    }
+
                 }
             }
 
