@@ -82,4 +82,16 @@ Authors
 - **Montiel Acevedo Juan Francisco** – Cube character, physics, terrain collision – [@Juanff7](https://github.com/Juanff7)
 - **Castillo Cano Agustín Manuel** – Animated main menu, transitions, user input – [@CCano626](https://github.com/CCano626)
 
-- 
+## 📷 Screenshots
+
+### 🧭 Main Menu
+![Menu principal](images/cap4.png)
+
+### 🌄 Terrain
+![Terreno 3D](images/cap3.png)
+
+### 🌋 Lava Eruption
+![Erupción de lava](images/cap2.png)
+
+### 🧍 Character Movement
+![Movimiento del personaje](images/cap1.png)
