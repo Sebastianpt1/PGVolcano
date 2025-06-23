@@ -30,6 +30,12 @@ struct ParticulaExplosion {
     glm::vec3 velocidad;
     float vida;
 };
+const float WALK_SPEED = 7.0f;
+const float SPRINT_SPEED = 13.0f;
+const float GRAVITY = 9.81f;  // física realista
+const float JUMP_VELOCITY = 3.0f;  
+
+
 
 std::vector<ParticulaExplosion> particulasLava;
 const int MAX_EXPLOSION = 500;
@@ -517,6 +523,30 @@ int main() {
         }
 
 
+        static bool mouseLocked = false;
+        static bool ctrlPressed = false;
+        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS && !ctrlPressed) {
+            ctrlPressed = true;
+            mouseLocked = !mouseLocked;
+            if (mouseLocked) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                camera.firstClick = true;
+            }
+            else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        }
+        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE) {
+            ctrlPressed = false;
+        }
+
+
+        // Y después ya el resto normal:
+        procesarInput(window);
+        camera.Inputs(window);
+        camera.updateMatrix(45.0f, 0.1f, 10000.0f);
+
+
         glClearColor(0.05f, 0.07f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -608,31 +638,40 @@ int main() {
 
         float terrenoY = getAlturaDesdeTerreno(playerPosition, model2.collisionTriangles);
         if (terrenoY != -INFINITY) {
-            playerVelocityY -= 13.0f * deltaTime;
+            playerVelocityY -= GRAVITY * deltaTime;
             playerPosition.y += playerVelocityY * deltaTime;
 
-            float offsetSuelo = 0.5f;
+            float offsetSuelo = 0.001f;
             if (playerPosition.y < terrenoY + offsetSuelo) {
                 playerPosition.y = terrenoY + offsetSuelo;
                 playerVelocityY = 0.0f;
                 isOnGround = true;
             }
         }
+        //primer click del salto muy rapido
+        static bool spacePressed = false;
 
         glm::vec3 forward = glm::normalize(camera.Orientation);
         glm::vec3 right = glm::normalize(glm::cross(forward, camera.Up));
-        float speed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? 130.0f : 7.5f;
+        float baseSpeed = personaje.modoCreativo ? 45.0f : WALK_SPEED;
+        float speed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? baseSpeed * 2.0f : baseSpeed;
+
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) playerPosition += forward * speed * deltaTime;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) playerPosition -= forward * speed * deltaTime;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) playerPosition -= right * speed * deltaTime;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) playerPosition += right * speed * deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isOnGround) {
-            playerVelocityY = 9.0f;
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && isOnGround && !spacePressed) {
+            playerVelocityY = JUMP_VELOCITY;
             isOnGround = false;
+            spacePressed = true;
         }
 
-        camera.Position = playerPosition + glm::vec3(0.0f, 2.0f, 0.0f);
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+            spacePressed = false;
+        }
+        //tamaño del personaje(ubicacion de la camara en el personaje)
+        camera.Position = playerPosition + glm::vec3(0.0f, 3.0f, 0.0f);
 
         static bool tecla9Presionada = false;
         if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS && !tecla9Presionada) {
