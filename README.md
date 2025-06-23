@@ -74,6 +74,10 @@ Make sure any required .dll files (e.g., glfw3.dll, irrKlang.dll) are located in
 License
 This project is for educational purposes. All models, textures, and audio used are under their respective licenses.
 
+## Demo Video
+
+[![Watch the video](https://www.youtube.com/watch?v=lAnkaRRoG4w)
+
 Authors
 ## 👥 Authors
 
