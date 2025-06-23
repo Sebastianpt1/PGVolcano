@@ -1,8 +1,8 @@
 #PGVOLCANO
 
-![Python](https://img.shields.io/badge/Python-3.10-informational?style=flat&logo=python)
-![OpenGL](https://img.shields.io/badge/OpenGL-3.10-brightgreen)
-![ModernGL](https://img.shields.io/badge/ModernGL-5.6.4-yellowgreen)
-![PyGame](https://img.shields.io/badge/PyGame-2.0.1-green)
-![PyGLM](https://img.shields.io/badge/PyGlm-1.2.5-lightgreen)
-
+[C++](https://img.shields.io/badge/Language-C++17-blue)
+![OpenGL](https://img.shields.io/badge/OpenGL-4.6-brightgreen)
+![GLFW](https://img.shields.io/badge/GLFW-3.3-orange)
+![GLAD](https://img.shields.io/badge/GLAD-OpenGL%20Loader-yellow)
+![Visual_Studio](https://img.shields.io/badge/IDE-Visual%20Studio%202022-purple)
+![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-lightgrey)
