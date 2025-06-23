@@ -88,7 +88,7 @@ Authors
 
 ## 📷 Screenshots
 
-![Menu principal](images/cap4.png)
+[![Menu principal](images/cap4.png)]
 
 ![Terreno 3D](images/cap3.png)
 
