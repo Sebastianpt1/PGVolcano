@@ -134,6 +134,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="EBO.cpp" />
+    <ClCompile Include="LavaStream.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="EBO.h" />
+    <ClInclude Include="LavaStream.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Personaje.h" />
@@ -164,6 +166,8 @@
     <None Include="default2.frag" />
     <None Include="lava.frag" />
     <None Include="lava.vert" />
+    <None Include="lava_stream.frag" />
+    <None Include="lava_stream.vert" />
     <None Include="light.frag" />
     <None Include="light.vert" />
     <None Include="menu.frag" />

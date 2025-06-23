@@ -60,6 +60,9 @@
     <ClCompile Include="Vertices.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="LavaStream.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaderClass.h">
@@ -95,6 +98,9 @@
     <ClInclude Include="Vertices.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="LavaStream.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.frag">
@@ -124,5 +130,11 @@
     <None Include="lava.vert" />
     <None Include="particle.frag" />
     <None Include="particle.vert" />
+    <None Include="lava_stream.frag">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="lava_stream.vert">
+      <Filter>Archivos de recursos</Filter>
+    </None>
   </ItemGroup>
 </Project>

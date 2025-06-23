@@ -19,6 +19,12 @@ using namespace irrklang;
 #include "Personaje.h"
 #include "Vertices.h"
 
+#include "LavaStream.h"
+
+std::vector<LavaStream> lavaCintas;
+Shader* lavaStreamShader = nullptr;
+bool flujoDesdeBordeCreado = false;  // Controla si ya activamos los ríos
+
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 float lavaY = 400.5f;            // Altura inicial de la lava (misma que usamos en translate)
@@ -34,8 +40,6 @@ const float WALK_SPEED = 7.0f;
 const float SPRINT_SPEED = 13.0f;
 const float GRAVITY = 9.81f;  // física realista
 const float JUMP_VELOCITY = 3.0f;  
-
-
 
 std::vector<ParticulaExplosion> particulasLava;
 const int MAX_EXPLOSION = 500;
@@ -321,6 +325,34 @@ int main() {
     glEnableVertexAttribArray(1);
 
     lavaShader = new Shader("lava.vert", "lava.frag");
+    lavaStreamShader = new Shader("lava_stream.vert", "lava_stream.frag");
+
+    // Flujos saliendo por ambos bordes del cráter, en dirección contraria (/ \)
+    // Lava rebalsando hacia el frente del cráter, apuntando hacia el personaje
+
+    lavaCintas.emplace_back(
+        glm::vec3(1700.0f, 550.0f, 1550.0f),   // Más cerca al borde real
+        glm::vec3(-1.0f, -0.8f, -2.0f),        // Dirección hacia abajo y al frente
+        800.0f, 150.0f, 35
+    );
+
+    lavaCintas.emplace_back(
+        glm::vec3(1400.0f, 550.0f, 1550.0f),   // Lado opuesto
+        glm::vec3(-1.0f, -0.8f, -2.0f),
+        700.0f, 150.0f, 35
+    );
+
+    lavaCintas.emplace_back(
+        glm::vec3(900.0f, 510.0f, 1675.0f),    // bajamos y y acercamos z
+        glm::vec3(-1.0f, -0.6f, -1.8f),        // caída más pronunciada
+        700.0f, 140.0f, 35
+    );
+
+    lavaCintas.emplace_back(
+        glm::vec3(600.0f, 490.0f, 1950.0f),    // más al borde del terreno
+        glm::vec3(-1.2f, -0.6f, -1.6f),
+        700.0f, 140.0f, 35
+    );
 
     int sectores = 20;
     int stacks = 20;
@@ -375,7 +407,6 @@ int main() {
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
-
 
     glGenVertexArrays(1, &particleVAO);
     glGenBuffers(1, &particleVBO);
@@ -711,9 +742,17 @@ int main() {
             xPresionada = false;
         }
 
-        // ⬇️ BLOQUE QUE SUBE LA LAVA
+        // BLOQUE QUE SUBE LA LAVA
         if (erupcionActiva) {
             lavaY += velocidadLava * deltaTime;
+
+            if (!flujoDesdeBordeCreado && lavaY >= alturaMaxima) {
+                for (auto& flujo : lavaCintas)
+                    flujo.activar();  // Activamos los ríos
+
+                flujoDesdeBordeCreado = true;
+            }
+
             if (lavaY >= alturaMaxima) {
                 lavaY = alturaMaxima;
                 erupcionActiva = false;
@@ -835,6 +874,25 @@ int main() {
 
         glBindVertexArray(lavaVAO);
         glDrawElements(GL_TRIANGLES, circleIndices.size(), GL_UNSIGNED_INT, 0);
+
+        // Dibujar los ríos de lava animados
+        lavaStreamShader->Activate();
+        camera.Matrix(*lavaStreamShader, "camMatrix");
+
+        glUniform1f(glGetUniformLocation(lavaStreamShader->ID, "time"), glfwGetTime());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, lavaTexture);
+        glUniform1i(glGetUniformLocation(lavaStreamShader->ID, "lavaTexture"), 0);
+
+        // ACTUALIZAMOS y luego DIBUJAMOS los flujos
+        for (auto& flujo : lavaCintas) {
+            flujo.update(deltaTime);  // ⬅️ Aquí actualiza la geometría (progreso de flujo)
+
+            glm::mat4 model = glm::mat4(1.0f);
+            glUniformMatrix4fv(glGetUniformLocation(lavaStreamShader->ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            flujo.draw(lavaStreamShader->ID);
+        }
 
         if (explotar) {
             glDisable(GL_DEPTH_TEST);     // Que no se oculten por el terreno
