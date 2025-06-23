@@ -1,12 +1,63 @@
-# PGVOLCANO
+# 🌋 Volcanic Eruption Simulator
 
 ![C++](https://img.shields.io/badge/Language-C++17-blue)
 ![OpenGL](https://img.shields.io/badge/OpenGL-4.6-brightgreen)
 ![GLFW](https://img.shields.io/badge/GLFW-3.3-orange)
 ![GLAD](https://img.shields.io/badge/GLAD-OpenGL%20Loader-yellow)
+![FreeType](https://img.shields.io/badge/FreeType-2.13.0-blueviolet)
+![irrKlang](https://img.shields.io/badge/Audio-irrKlang-red)
 ![Visual_Studio](https://img.shields.io/badge/IDE-Visual%20Studio%202022-purple)
 ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11-lightgrey)
 
-## 📌 Description
+---
 
-**PGVOLCANO** This project is an interactive simulation of a volcanic eruption developed in C++ using OpenGL. The environment includes a 3D terrain, realistic visual effects such as lava particles and smoke, animated lava flows, and a collision system. It also includes ambient sound, an animated start menu, and control of a character that can move and jump. The goal is to offer an immersive visual experience that dynamically represents a volcanic eruption in real time.
+## 📝 Description
+
+This project is an interactive 3D simulation of a volcanic eruption developed using C++ and OpenGL. The simulation features:
+
+- A fully rendered 3D terrain
+- Realistic lava particle effects and smoke
+- Animated lava rivers flowing down slopes
+- A jumpable cube-character with basic physics and terrain collision
+- An animated image-based main menu
+- Ambient sounds and eruption audio using irrKlang
+- A FreeType-based system for rendering text on screen (menus, HUD)
+- Skybox environment for immersive atmosphere
+
+The project showcases various OpenGL techniques including shaders, VBO/VAO handling, model loading, and texture animation.
+
+---
+
+## 🗂️ Features
+
+- 🌋 Dynamic lava eruption system with rising lava and eruption control
+- 🧊 Particle system: lava projectiles that bounce off terrain
+- 🌊 Flowing lava rivers that activate after eruption
+- 🧍 Controllable character (cube) with gravity and jumping
+- 🧭 Animated main menu with clickable buttons
+- 🔊 Background music and sound effects
+- 🌌 Custom skybox textures for environment
+- 📝 In-game text using FreeType
+
+---
+
+## 🛠️ Requirements
+
+- C++17
+- OpenGL 4.6
+- GLFW
+- GLAD
+- stb_image
+- FreeType
+- irrKlang (audio)
+- Visual Studio 2019 or 2022
+
+---
+
+## 🚀 How to Run
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/yourusername/volcano-simulator.git
+   cd volcano-simulator
