@@ -12,7 +12,7 @@ public:
     void draw(unsigned int shaderID);
     void activar();
     void reset();
-
+    
 private:
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
@@ -25,6 +25,7 @@ private:
     float progreso = 0.0f;          // 0.0 (no se ha movido) a 1.0 (completo)
     float velocidadDescenso = 0.05f; // velocidad de avance por segundo
     bool activo = false;            // se activa cuando la erupción llega al máximo
+    float timeAcumulado = 0.0f;
 
     int segmentos;
 

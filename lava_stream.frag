@@ -8,7 +8,8 @@ uniform float time;
 
 void main() {
     vec2 uv = TexCoords;
-    uv.y -= time * 0.2;  // Desplaza la lava
+    uv.y -= time * 0.5;   // más rápido
+uv.x += sin(time * 0.3) * 0.05;  // un leve "temblor"
     vec3 color = texture(lavaTexture, uv).rgb;
     FragColor = vec4(color, 1.0);
 }

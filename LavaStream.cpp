@@ -1,4 +1,4 @@
-#include "LavaStream.h"
+﻿#include "LavaStream.h"
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -24,7 +24,15 @@ void LavaStream::generarMalla() {
         float t = (float)i / segmentos;
         float realT = glm::min(t, progreso);
 
-        glm::vec3 center = origen + dir * (realT)*longitud;
+        float waveAmplitude = 15.0f;  // qué tan ancha es la ondulación
+        float waveFrequency = 2.0f;   // cuántas ondas en el largo
+
+        // Desplazamiento "serpenteante" lateral
+        float offset = sin(t * waveFrequency * 3.1415f + timeAcumulado * 1.0f) * waveAmplitude;
+
+        // Aplicamos el offset al center
+        glm::vec3 offsetRight = right * offset;
+        glm::vec3 center = origen + dir * (realT)*longitud + offsetRight;
         center.y -= t * 30.0f;
 
         glm::vec3 left = center - right * ancho * 0.5f;
@@ -89,6 +97,8 @@ void LavaStream::update(float deltaTime) {
     if (activo && progreso < 1.0f) {
         progreso += velocidadDescenso * deltaTime;
         if (progreso > 1.0f) progreso = 1.0f;
+
+        timeAcumulado += deltaTime;  // ⬅️ acumulamos tiempo
         generarMalla();
     }
 }
