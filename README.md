@@ -61,3 +61,12 @@ The project showcases various OpenGL techniques including shaders, VBO/VAO handl
    ```bash
    git clone https://github.com/yourusername/volcano-simulator.git
    cd volcano-simulator
+2. **Open the solution file (.sln) in Visual Studio Community 2019 or 2022.**
+
+3. **Build the project (Debug).**
+
+4. **Run the executable either directly from Visual Studio or from the /x64/Debug.**
+
+🧩 This project was designed to run immediately after cloning, as long as all required libraries (GLFW, GLAD, FreeType, irrKlang, stb_image, etc.) are already correctly configured and available on your system or included in the project folder.
+
+📁 Make sure any required .dll files (e.g., glfw3.dll, irrKlang.dll) are located in the same directory as your final executable to avoid runtime errors.
