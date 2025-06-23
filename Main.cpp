@@ -158,9 +158,13 @@ void cargarFramesAnimacionMenu(const std::string& carpeta, int total) {
     }
 }
 
+float fadeAlpha = 0.0f;
+bool transicionEntrando = true;  // true = fade-in, false = fade-out
+
 enum AppState {
     ESTADO_MENU,
     ESTADO_CREDITOS,
+    ESTADO_AYUDA,
     ESTADO_SIMULACION
 };
 
@@ -173,7 +177,11 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+    ISoundEngine* motorSonido = createIrrKlangDevice();
+    if (!motorSonido) {
+        std::cout << "No se pudo inicializar irrKlang.\n";
+        return -1;
+    }
     unsigned int width = 845, height = 480;
     GLFWwindow* window = glfwCreateWindow(width, height, "Simulacion Volcan", NULL, NULL);
     if (!window) {
@@ -251,6 +259,9 @@ int main() {
  
     cargarFramesAnimacionMenu(parentDir + "/PGVolcano/Textures/MenuFrames", 50); 
     texturaCreditos = cargarTexturaMenu(parentDir + "/PGVolcano/Textures/MenuFrames/creditos.png");
+    unsigned int texturaAyuda;
+    texturaAyuda = cargarTexturaMenu(parentDir + "/PGVolcano/Textures/MenuFrames/ayuda.png");
+
 
     ISoundEngine* engine = createIrrKlangDevice();
     ISound* sonidoErupcion = nullptr;
@@ -421,39 +432,46 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         if (estadoActual == ESTADO_MENU) {
-            static bool musicaMenuReproduciendo = false;
-            if (!musicaMenuReproduciendo) {
-                if (musicaSimulacion) musicaSimulacion->stop(); // detener música simulación
-                musicaMenu = engine->play2D("media/lag_train.mp3", true, false, true);
-                musicaMenuReproduciendo = true;
-            }
-
             frameTimer += deltaTime;
             if (frameTimer >= frameDuration) {
                 frameTimer = 0.0f;
-                currentAnimFrame = (currentAnimFrame + 1) % menuFrames.size(); // bucle circular
+                currentAnimFrame = (currentAnimFrame + 1) % menuFrames.size();
+            }
+
+            // Transición fade
+            if (transicionEntrando) {
+                fadeAlpha += deltaTime * 1.5f;
+                if (fadeAlpha >= 1.0f) fadeAlpha = 1.0f;
+            }
+            else {
+                fadeAlpha -= deltaTime * 1.5f;
+                if (fadeAlpha <= 0.0f) {
+                    fadeAlpha = 0.0f;
+                    estadoActual = ESTADO_SIMULACION;
+                }
             }
 
             static bool mouseLiberado = true;
-            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouseLiberado) {
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouseLiberado && transicionEntrando) {
                 double mouseX, mouseY;
                 glfwGetCursorPos(window, &mouseX, &mouseY);
 
                 if (clicDentroDeBoton(mouseX, mouseY, btnIniciarX * escalaX, btnIniciarY * escalaY, botonAncho * escalaX, botonAlto * escalaY, height)) {
+                    motorSonido->play2D("media/click.mp3", false);
+
                     std::cout << "Iniciar simulación\n";
-                    estadoActual = ESTADO_SIMULACION;
-
-                    if (musicaMenu) musicaMenu->stop();
-                    musicaSimulacion = engine->play2D("media/Aria_Math.mp3", true, false, true);
-                    musicaMenuReproduciendo = false;
+                    transicionEntrando = false; // activa fade-out
                 }
-
                 else if (clicDentroDeBoton(mouseX, mouseY, btnCreditosX * escalaX, btnCreditosY * escalaY, botonAncho * escalaX, botonAlto * escalaY, height)) {
+                    motorSonido->play2D("media/click.mp3", false);
+
                     std::cout << "Ver créditos\n";
                     estadoActual = ESTADO_CREDITOS;
+                    fadeAlpha = 0.0f;
+                    transicionEntrando = true;
                 }
-
                 else if (clicDentroDeBoton(mouseX, mouseY, btnSalirX * escalaX, btnSalirY * escalaY, botonAncho * escalaX, botonAlto * escalaY, height)) {
+                    motorSonido->play2D("media/click.mp3", false);
                     std::cout << "Salir\n";
                     glfwSetWindowShouldClose(window, true);
                 }
@@ -464,8 +482,6 @@ int main() {
                 mouseLiberado = true;
             }
 
-
-
             glClearColor(0, 0, 0, 1);
             glClear(GL_COLOR_BUFFER_BIT);
             glDisable(GL_DEPTH_TEST);
@@ -475,6 +491,7 @@ int main() {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, menuFrames[currentAnimFrame]);
             glUniform1i(glGetUniformLocation(menuShader.ID, "menuTexture"), 0);
+            glUniform1f(glGetUniformLocation(menuShader.ID, "fadeAlpha"), fadeAlpha); // NUEVO
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
             glEnable(GL_DEPTH_TEST);
@@ -482,7 +499,22 @@ int main() {
             glfwPollEvents();
             continue;
         }
+
         else if (estadoActual == ESTADO_CREDITOS) {
+            // Fade-in / fade-out
+            if (transicionEntrando) {
+                fadeAlpha += deltaTime * 1.5f;
+                if (fadeAlpha >= 1.0f) fadeAlpha = 1.0f;
+            }
+            else {
+                fadeAlpha -= deltaTime * 1.5f;
+                if (fadeAlpha <= 0.0f) {
+                    fadeAlpha = 0.0f;
+                    estadoActual = ESTADO_MENU;
+                    transicionEntrando = true;
+                }
+            }
+
             glClearColor(0, 0, 0, 1);
             glClear(GL_COLOR_BUFFER_BIT);
             glDisable(GL_DEPTH_TEST);
@@ -492,23 +524,99 @@ int main() {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texturaCreditos);
             glUniform1i(glGetUniformLocation(menuShader.ID, "menuTexture"), 0);
+            glUniform1f(glGetUniformLocation(menuShader.ID, "fadeAlpha"), fadeAlpha);
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
             glEnable(GL_DEPTH_TEST);
 
+            // Detectar botón "Volver" y "Ayuda"
             static bool mouseLiberado = true;
-            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouseLiberado) {
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouseLiberado && transicionEntrando) {
                 double mouseX, mouseY;
                 glfwGetCursorPos(window, &mouseX, &mouseY);
 
-                int volverX = 50;
+                // Botón Volver (abajo izquierda)
+                int volverX = 60;
                 int volverY = 50;
-                int volverAncho = 200;
-                int volverAlto = 70;
+                int volverAncho = 230;
+                int volverAlto = 80;
+
 
                 if (clicDentroDeBoton(mouseX, mouseY, volverX * escalaX, volverY * escalaY, volverAncho * escalaX, volverAlto * escalaY, height)) {
+                    motorSonido->play2D("media/click.mp3", false);
                     std::cout << "Volviendo al menú\n";
-                    estadoActual = ESTADO_MENU;
+                    transicionEntrando = false;
+                }
+
+                // Botón Ayuda (abajo derecha)
+                int ayudaAncho = 230;
+                int ayudaAlto = 80;
+                int ayudaX = 1920 - volverX - ayudaAncho;  // 1920 = ancho de la imagen base
+                int ayudaY = volverY; // misma altura
+
+
+                if (clicDentroDeBoton(mouseX, mouseY, ayudaX * escalaX, ayudaY * escalaY, ayudaAncho * escalaX, ayudaAlto * escalaY, height)) {
+                    motorSonido->play2D("media/click.mp3", false);
+                    std::cout << "Abriendo ayuda\n";
+                    estadoActual = ESTADO_AYUDA;
+                    fadeAlpha = 0.0f;
+                    transicionEntrando = true;
+                }
+
+                mouseLiberado = false;
+            }
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+                mouseLiberado = true;
+            }
+
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+            continue;
+        }
+        else if (estadoActual == ESTADO_AYUDA) {
+            if (transicionEntrando) {
+                fadeAlpha += deltaTime * 1.5f;
+                if (fadeAlpha >= 1.0f) fadeAlpha = 1.0f;
+            }
+            else {
+                fadeAlpha -= deltaTime * 1.5f;
+                if (fadeAlpha <= 0.0f) {
+                    fadeAlpha = 0.0f;
+                    estadoActual = ESTADO_CREDITOS;
+                    transicionEntrando = true;
+                }
+            }
+
+            glClearColor(0, 0, 0, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glDisable(GL_DEPTH_TEST);
+
+            menuShader.Activate();
+            glBindVertexArray(quadVAO);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texturaAyuda);
+            glUniform1i(glGetUniformLocation(menuShader.ID, "menuTexture"), 0);
+            glUniform1f(glGetUniformLocation(menuShader.ID, "fadeAlpha"), fadeAlpha);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            glEnable(GL_DEPTH_TEST);
+
+            // Botón Volver
+            static bool mouseLiberado = true;
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && mouseLiberado && transicionEntrando) {
+                double mouseX, mouseY;
+                glfwGetCursorPos(window, &mouseX, &mouseY);
+
+                int volverX = 60;
+                int volverY = 50;
+                int volverAncho = 230;
+                int volverAlto = 80;
+
+
+                if (clicDentroDeBoton(mouseX, mouseY, volverX * escalaX, volverY * escalaY, volverAncho * escalaX, volverAlto * escalaY, height)) {
+                    motorSonido->play2D("media/click.mp3", false);
+                    std::cout << "Volviendo a créditos desde ayuda\n";
+                    transicionEntrando = false; // activa fade-out
                 }
 
                 mouseLiberado = false;
