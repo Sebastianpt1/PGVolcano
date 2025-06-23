@@ -70,3 +70,15 @@ The project showcases various OpenGL techniques including shaders, VBO/VAO handl
 🧩 This project was designed to run immediately after cloning, as long as all required libraries (GLFW, GLAD, FreeType, irrKlang, stb_image, etc.) are already correctly configured and available on your system or included in the project folder.
 
 📁 Make sure any required .dll files (e.g., glfw3.dll, irrKlang.dll) are located in the same directory as your final executable to avoid runtime errors.
+
+📚 License
+This project is for educational purposes. All models, textures, and audio used are under their respective licenses.
+
+👥 Authors
+## 👥 Authors
+
+
+- **JuanPerez123** – Terrain modeling and rendering – [@Sebastianpt1](https://github.com/Sebastianpt1)
+- **MariaDev45** – Lava particles, lava rivers, shaders, eruption logic – [@wilmor03](https://github.com/wilmor03)
+- **KevinCGFX** – Cube character, physics, terrain collision – [@Juanff7](https://github.com/Juanff7)
+- **CarlosSim** – Animated main menu, transitions, user input – [@CCano626](https://github.com/CCano626)
