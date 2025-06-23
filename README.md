@@ -1,4 +1,4 @@
-#PGVOLCANO
+# PGVOLCANO
 
 ![C++](https://img.shields.io/badge/Language-C++17-blue)
 ![OpenGL](https://img.shields.io/badge/OpenGL-4.6-brightgreen)
