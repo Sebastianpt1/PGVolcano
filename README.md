@@ -1,4 +1,4 @@
-# World Legacy 3D
+#PGVOLCANO
 
 ![Python](https://img.shields.io/badge/Python-3.10-informational?style=flat&logo=python)
 ![OpenGL](https://img.shields.io/badge/OpenGL-3.10-brightgreen)
