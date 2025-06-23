@@ -9,6 +9,4 @@
 
 ## 📌 Description
 
-**World Legacy 3D** is a project focused on the creation of an interactive 3D environment that simulates a virtual museum. This museum showcases detailed recreations of iconic world heritage sites and sculptures, offering users a visual and educational tour across global monuments.
-
-The goal is to provide an immersive experience that blends historical culture with modern graphics technology using OpenGL and Python.
+**PGVOLCANO** This project is an interactive simulation of a volcanic eruption developed in C++ using OpenGL. The environment includes a 3D terrain, realistic visual effects such as lava particles and smoke, animated lava flows, and a collision system. It also includes ambient sound, an animated start menu, and control of a character that can move and jump. The goal is to offer an immersive visual experience that dynamically represents a volcanic eruption in real time.
