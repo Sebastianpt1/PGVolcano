@@ -81,4 +81,5 @@ Authors
 - **Vega Cruz Wilmor José** – Lava particles, lava rivers, shaders, eruption logic – [@wilmor03](https://github.com/wilmor03)
 - **Montiel Acevedo Juan Francisco** – Cube character, physics, terrain collision – [@Juanff7](https://github.com/Juanff7)
 - **Castillo Cano Agustín Manuel** – Animated main menu, transitions, user input – [@CCano626](https://github.com/CCano626)
+
 - 
