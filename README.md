@@ -11,7 +11,7 @@
 
 ---
 
-## 📝 Description
+## Description
 
 This project is an interactive 3D simulation of a volcanic eruption developed using C++ and OpenGL. The simulation features:
 
@@ -28,7 +28,7 @@ The project showcases various OpenGL techniques including shaders, VBO/VAO handl
 
 ---
 
-## 🗂️ Features
+## Features
 
 - 🌋 Dynamic lava eruption system with rising lava and eruption control
 - 🧊 Particle system: lava projectiles that bounce off terrain
@@ -41,7 +41,7 @@ The project showcases various OpenGL techniques including shaders, VBO/VAO handl
 
 ---
 
-## 🛠️ Requirements
+## Requirements
 
 - C++17
 - OpenGL 4.6
@@ -54,7 +54,7 @@ The project showcases various OpenGL techniques including shaders, VBO/VAO handl
 
 ---
 
-## 🚀 How to Run
+## How to Run
 
 1. **Clone the repository:**
 
@@ -67,17 +67,18 @@ The project showcases various OpenGL techniques including shaders, VBO/VAO handl
 
 4. **Run the executable either directly from Visual Studio or from the /x64/Debug.**
 
-🧩 This project was designed to run immediately after cloning, as long as all required libraries (GLFW, GLAD, FreeType, irrKlang, stb_image, etc.) are already correctly configured and available on your system or included in the project folder.
+This project was designed to run immediately after cloning, as long as all required libraries (GLFW, GLAD, FreeType, irrKlang, stb_image, etc.) are already correctly configured and available on your system or included in the project folder.
 
-📁 Make sure any required .dll files (e.g., glfw3.dll, irrKlang.dll) are located in the same directory as your final executable to avoid runtime errors.
+Make sure any required .dll files (e.g., glfw3.dll, irrKlang.dll) are located in the same directory as your final executable to avoid runtime errors.
 
-📚 License
+License
 This project is for educational purposes. All models, textures, and audio used are under their respective licenses.
 
-👥 Authors
+Authors
 ## 👥 Authors
 
 - **Potoy Sebastian Ernesto** – Terrain modeling and rendering – [@Sebastianpt1](https://github.com/Sebastianpt1)
 - **Vega Cruz Wilmor José** – Lava particles, lava rivers, shaders, eruption logic – [@wilmor03](https://github.com/wilmor03)
 - **Montiel Acevedo Juan Francisco** – Cube character, physics, terrain collision – [@Juanff7](https://github.com/Juanff7)
 - **Castillo Cano Agustín Manuel** – Animated main menu, transitions, user input – [@CCano626](https://github.com/CCano626)
+- 
