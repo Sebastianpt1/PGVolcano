@@ -74,20 +74,20 @@ Make sure any required .dll files (e.g., glfw3.dll, irrKlang.dll) are located in
 License
 This project is for educational purposes. All models, textures, and audio used are under their respective licenses.
 
-## 🎥 Demo Video
+## Demo Video
 
 [![Watch the video](https://img.youtube.com/vi/lAnkaRRoG4w/hqdefault.jpg)](https://www.youtube.com/watch?v=lAnkaRRoG4w)
 
 
 Authors
-## 👥 Authors
+## Authors
 
 - **Potoy Sebastian Ernesto** – Terrain modeling and rendering – [@Sebastianpt1](https://github.com/Sebastianpt1)
 - **Vega Cruz Wilmor José** – Lava particles, lava rivers, shaders, eruption logic – [@wilmor03](https://github.com/wilmor03)
 - **Montiel Acevedo Juan Francisco** – Cube character, physics, terrain collision – [@Juanff7](https://github.com/Juanff7)
 - **Castillo Cano Agustín Manuel** – Animated main menu, transitions, user input – [@CCano626](https://github.com/CCano626)
 
-## 📷 Screenshots
+## Screenshots
 
 [![Menu principal](images/cap4.png)]
 
